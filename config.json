@@ -1,0 +1,13 @@
+{
+    "token": "NjEwMDE3NDg1Nzk3OTgyMjA4.XU_Ymw._bB-tkADD2IGB2Zl2k08Gp1O_wI",
+    "roles": {
+        "muted": 610097215800606741
+    },
+    "channels": {
+        "welcome": 550691591816347658,
+        "joins_leaves": 550691591816347658,
+        "vc_join": 550691591816347658,
+        "kicks_bans": 550691591816347658,
+        "edits_deletes": 550691591816347658 
+    }
+}
