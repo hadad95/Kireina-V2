@@ -7,15 +7,10 @@ class Logger(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.config = bot.config
-        self.welcome = self.config['channels']['welcome']
-        self.joins_leaves = self.config['channels']['joins_leaves']
-        self.vc_join = self.config['channels']['vc_join']
-        self.kicks_bans = self.config['channels']['kicks_bans']
-        self.edits_deletes = self.config['channels']['edits_deletes']
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        welcome = self.bot.get_channel(self.welcome)
+        welcome = self.bot.get_channel(self.config['channels']['welcome'])
         await welcome.send(f'Welcome to Hearts, {member.mention}! We\'re super happy to have you. Make sure you look at RULES_CHANNEL_MENTION and ANNOUNCEMENTS_CHANNEL_MENTION to stay up to date on things! {random.choices(member.guild.emojis)}')
         embed = discord.Embed()
         embed.set_author(name='Member joined', icon_url=member.avatar_url)
@@ -23,29 +18,40 @@ class Logger(commands.Cog):
         embed.add_field(name='User', value=f'{member.mention} ({member})', inline=False)
         embed.set_thumbnail(url=member.avatar_url)
         embed.timestamp = datetime.utcnow()
-        chan = self.bot.get_channel(self.joins_leaves)
+        chan = self.bot.get_channel(self.config['channels']['joins_leaves'])
         await chan.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        kicks = self.bot.get_channel(self.kicks_bans)
+        kicks = self.bot.get_channel(self.config['channels']['kicks_bans_mutes'])
+        leaves = self.bot.get_channel(self.config['channels']['joins_leaves'])
         entries = await member.guild.audit_logs(limit=1, action=discord.AuditLogAction.kick).flatten()
-        embed = discord.Embed()
-        embed.add_field(name='User', value=member.mention, inline=False)
+        # member got kicked
         if len(entries) == 1 and entries[0].target.id == member.id and (datetime.utcnow() - entries[0].created_at).total_seconds() <= 2:
+            embed = discord.Embed()
             embed.set_author(name='Member kicked', icon_url=member.avatar_url)
+            embed.add_field(name='User', value=f'{member.mention} ({member})', inline=False)
             embed.add_field(name='Moderator', value=str(entries[0].user), inline=False)
             embed.add_field(name='Reason', value=entries[0].reason if entries[0].reason else 'None', inline=False)
             embed.colour = discord.Colour.gold()
+            embed.set_thumbnail(url=member.avatar_url)
+            embed.timestamp = datetime.utcnow()
+            await kicks.send(embed=embed)
+        # member normally left
         else:
-            embed.set_author(name='Member left', icon_url=member.avatar_url)
+            if any(self.config['roles']['muted_role'] == role.id for role in member.roles):
+                await member.ban(reason='Auto-ban for mute evasion!')
 
-        embed.set_thumbnail(url=member.avatar_url)
-        await kicks.send(embed=embed)
+        embed2 = discord.Embed()
+        embed2.set_author(name='Member left', icon_url=member.avatar_url)
+        embed2.add_field(name='User', value=f'{member.mention} ({member})', inline=False)
+        embed2.set_thumbnail(url=member.avatar_url)
+        embed2.timestamp = datetime.utcnow()
+        await leaves.send(embed=embed2)
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild, user):
-        bans = self.bot.get_channel(self.kicks_bans)
+        bans = self.bot.get_channel(self.config['channels']['kicks_bans_mutes'])
         embed = discord.Embed()
         entries = await guild.audit_logs(limit=1, action=discord.AuditLogAction.ban).flatten()
         embed.set_author(name='Member banned', icon_url=user.avatar_url)
@@ -61,7 +67,7 @@ class Logger(commands.Cog):
         if member.bot:
             return
 
-        chan = self.bot.get_channel(self.vc_join)
+        chan = self.bot.get_channel(self.config['channels']['vc_join'])
         embed = discord.Embed()
         embed.add_field(name='User', value=f'{member.mention} ({member})', inline=False)
         embed.set_thumbnail(url=member.avatar_url)
@@ -83,7 +89,7 @@ class Logger(commands.Cog):
         if before.author.bot:
             return
 
-        chan = self.bot.get_channel(self.edits_deletes)
+        chan = self.bot.get_channel(self.config['channels']['edits_deletes'])
         embed = discord.Embed()
         embed.title = f'{before.author} edited a message'
         embed.set_thumbnail(url=before.author.avatar_url)
