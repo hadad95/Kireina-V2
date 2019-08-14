@@ -107,7 +107,7 @@ class Logger(commands.Cog):
         chan = self.bot.get_channel(self.config['channels']['edits_deletes'])
         embed = discord.Embed()
         embed.set_author(name=f'{message.author} deleted a message', icon_url=message.author.avatar_url)
-        embed.set_thumbnail(url=message.autho.avatar_url)
+        embed.set_thumbnail(url=message.author.avatar_url)
         embed.add_field(name='Channel', value=message.channel.mention, inline=False)
         embed.add_field(name='Content', value=message.content, inline=False)
         embed.timestamp = datetime.utcnow()
