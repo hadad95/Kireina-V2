@@ -100,16 +100,30 @@ class Logger(commands.Cog):
         await chan.send(embed=embed)
 
     @commands.Cog.listener()
-    async def on_message_delete(self, message):
-        if message.author.bot:
+    async def on_raw_message_delete(self, payload):
+        message = None
+
+        if payload.cached_message:
+            message = payload.cached_message
+        elif self.config['messages'][payload.message_id] and self.config['messages'][payload.message_id].channel.id == payload.channel_id:
+            message = self.config['messages'][payload.message_id]
+
+        if message and message.author.bot:
             return
 
         chan = self.bot.get_channel(self.config['channels']['edits_deletes'])
         embed = discord.Embed()
-        embed.set_author(name=f'{message.author} deleted a message', icon_url=message.author.avatar_url)
-        embed.set_thumbnail(url=message.author.avatar_url)
-        embed.add_field(name='Channel', value=message.channel.mention, inline=False)
-        embed.add_field(name='Content', value=message.content, inline=False)
+
+        if message:
+            embed.set_author(name=f'{message.author} deleted a message', icon_url=message.author.avatar_url)
+            embed.set_thumbnail(url=message.author.avatar_url)
+            embed.add_field(name='Channel', value=message.channel.mention, inline=False)
+            embed.add_field(name='Content', value=message.content if message.content else 'None', inline=False)
+        else:
+            embed.set_author(name='Menssage deleted')
+            embed.add_field(name='Channel', value=message.channel.mention, inline=False)
+            embed.add_field(name='Content', value='None', inline=False)
+
         embed.timestamp = datetime.utcnow()
         await chan.send(embed=embed)
 
