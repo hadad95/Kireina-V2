@@ -1,6 +1,7 @@
 import sys
 import json
 import logging
+import pymongo
 import discord
 from discord.ext import commands
 
@@ -12,6 +13,8 @@ class Kireina(commands.Bot):
         self.load_extension('cogs.logger')
         self.load_extension('cogs.mod')
         self.load_extension('cogs.automation')
+        self.dbclient = pymongo.MongoClient('mongodb://localhost:27017/')
+        self.db = self.dbclient.kireina
 
     async def on_ready(self):
         if not self.running:
@@ -39,6 +42,6 @@ if __name__ == '__main__':
 
     # loading config and starting the bot
     with open('config.json', 'r') as f:
-        config = json.load(f)
-    bot = Kireina(config)
-    bot.run(config['token'])
+        cfg = json.load(f)
+    bot = Kireina(cfg)
+    bot.run(cfg['token'])
