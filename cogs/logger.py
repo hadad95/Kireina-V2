@@ -91,12 +91,26 @@ class Logger(commands.Cog):
 
         chan = self.bot.get_channel(self.config['channels']['edits_deletes'])
         embed = discord.Embed()
-        embed.title = f'{before.author} edited a message'
+        embed.set_author(name=f'{before.author} edited a message', icon_url=before.author.avatar_url)
         embed.set_thumbnail(url=before.author.avatar_url)
         embed.add_field(name='Channel', value=before.channel.mention, inline=False)
         embed.add_field(name='Before', value=before.content, inline=False)
         embed.add_field(name='After', value=after.content, inline=False)
-        print(before.author)
+        embed.timestamp = datetime.utcnow()
+        await chan.send(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_message_delete(self, message):
+        if message.author.bot:
+            return
+
+        chan = self.bot.get_channel(self.config['channels']['edits_deletes'])
+        embed = discord.Embed()
+        embed.set_author(name=f'{message.author} deleted a message', icon_url=message.author.avatar_url)
+        embed.set_thumbnail(url=message.autho.avatar_url)
+        embed.add_field(name='Channel', value=message.channel.mention, inline=False)
+        embed.add_field(name='Content', value=message.content, inline=False)
+        embed.timestamp = datetime.utcnow()
         await chan.send(embed=embed)
 
 
