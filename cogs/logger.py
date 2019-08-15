@@ -91,6 +91,7 @@ class Logger(commands.Cog):
 
         await self.bot.db.messages.insert_one({'msg_id': msg.id, 'content': msg.content, 'author_id': msg.author.id, 'channel_id': msg.channel.id})
 
+    """
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
         if before.author.bot:
@@ -105,34 +106,55 @@ class Logger(commands.Cog):
         embed.add_field(name='After', value=after.content, inline=False)
         embed.timestamp = datetime.utcnow()
         await chan.send(embed=embed)
+    """
 
+    # gotta remember there's no payload.channel_id in this version
     @commands.Cog.listener()
-    async def on_raw_message_delete(self, payload):
-        message = None
-
-        if payload.cached_message:
-            message = payload.cached_message
-        elif self.config['messages'][payload.message_id] and self.config['messages'][payload.message_id].channel.id == payload.channel_id:
-            message = self.config['messages'][payload.message_id]
-
-        if message and message.author.bot:
+    async def on_raw_message_edit(self, payload):
+        channel_id = int(payload.data['channel_id'])
+        msg = await self.bot.db.messages.find_one({'msg_id': payload.message_id, 'channel_id': channel_id})
+        if not msg:
             return
+
+        before = msg['content'] if msg['content'] else 'None'
+        content = payload.data.get('content')
+        after = str(content)
+        raw_author = payload.data.get('author')
+        author = self.bot.get_user(int(raw_author['id'])) if raw_author else None
+        channel = self.bot.get_channel(channel_id)
 
         chan = self.bot.get_channel(self.config['channels']['edits_deletes'])
         embed = discord.Embed()
-
-        if message:
-            embed.set_author(name=f'{message.author} deleted a message', icon_url=message.author.avatar_url)
-            embed.set_thumbnail(url=message.author.avatar_url)
-            embed.add_field(name='Channel', value=message.channel.mention, inline=False)
-            embed.add_field(name='Content', value=message.content if message.content else 'None', inline=False)
+        if author:
+            embed.set_author(name=f'{author} edited a message', icon_url=author.avatar_url)
+            embed.set_thumbnail(url=author.avatar_url)
         else:
-            embed.set_author(name='Menssage deleted')
-            embed.add_field(name='Channel', value=message.channel.mention, inline=False)
-            embed.add_field(name='Content', value='None', inline=False)
+            embed.set_author(name='Unknown edited a message')
 
+        embed.add_field(name='Channel', value=channel.mention, inline=False)
+        embed.add_field(name='Before', value=before, inline=False)
+        embed.add_field(name='After', value=after, inline=False)
         embed.timestamp = datetime.utcnow()
         await chan.send(embed=embed)
+        await self.bot.db.messages.update_one({'msg_id': payload.message_id, 'channel_id': channel_id}, {'$set': {'content': content if content else ''}})
+
+    @commands.Cog.listener()
+    async def on_raw_message_delete(self, payload):
+        msg = await self.bot.db.messages.find_one({'msg_id': payload.message_id, 'channel_id': payload.channel_id})
+        if not msg:
+            return
+
+        author = self.bot.get_user(msg['author_id'])
+        channel = self.bot.get_channel(payload.channel_id)
+        chan = self.bot.get_channel(self.config['channels']['edits_deletes'])
+        embed = discord.Embed()
+        embed.set_author(name=f'{author} deleted a message', icon_url=author.avatar_url)
+        embed.set_thumbnail(url=author.avatar_url)
+        embed.add_field(name='Channel', value=channel.mention, inline=False)
+        embed.add_field(name='Content', value=msg['content'] if msg['content'] else 'None', inline=False)
+        embed.timestamp = datetime.utcnow()
+        await chan.send(embed=embed)
+        await self.bot.db.messages.delete_many({'msg_id': payload.message_id, 'channel_id': payload.channel_id})
 
 
 def setup(bot):
