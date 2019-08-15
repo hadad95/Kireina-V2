@@ -14,9 +14,16 @@ class Kireina(commands.Bot):
         self.load_extension('cogs.automation')
         self.dbclient = AsyncIOMotorClient('mongodb://localhost:27017/')
         self.db = self.dbclient.kireina
+        self.loop.run_until_complete(self.initialize_db())
 
     async def on_ready(self):
         print('READY!')
+
+    async def initialize_db(self):
+        if not 'mutes' in await self.db.list_collection_names():
+            await self.db.create_collection('mutes')
+            await self.db.mutes.create_index('case_id', unique=True)
+            await self.db.mutes.insert_one({'_id': 'current_case', 'value': 0})
 
 if __name__ == '__main__':
     # logging stuff
