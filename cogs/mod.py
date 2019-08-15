@@ -49,5 +49,25 @@ class Mod(commands.Cog):
         await chan.send(embed=embed)
         await ctx.send(f'Muted `{member}` successfully!')
 
+    @commands.has_role(MODS_ROLE)
+    @commands.command()
+    async def unmute(self, ctx, member: discord.Member, reason=''):
+        if not any(self.muted_role == role.id for role in member.roles):
+            await ctx.send('That member is not muted you dumdum')
+            return
+
+        chan = self.bot.get_channel(self.config['channels']['kicks_bans_mutes'])
+        await member.remove_roles(ctx.guild.get_role(self.muted_role), reason=reason)
+        embed = discord.Embed()
+        embed.set_author(name='Member unmuted', icon_url=member.avatar_url)
+        embed.add_field(name='User', value=member, inline=False)
+        embed.add_field(name='Moderator', value=ctx.author, inline=False)
+        embed.add_field(name='Reason', value=reason if reason else 'None', inline=False)
+        embed.set_thumbnail(url=member.avatar_url)
+        embed.colour = discord.Colour.green()
+        embed.timestamp = datetime.utcnow()
+        await chan.send(embed=embed)
+        await ctx.send(f'Unmuted `{member}` successfully!')
+
 def setup(bot):
     bot.add_cog(Mod(bot))
