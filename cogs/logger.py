@@ -86,7 +86,7 @@ class Logger(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, msg):
-        if msg.channel.type != discord.ChannelType.text:
+        if msg.channel.type != discord.ChannelType.text or msg.author.bot:
             return
 
         await self.bot.db.messages.insert_one({'msg_id': msg.id, 'content': msg.content, 'author_id': msg.author.id, 'channel_id': msg.channel.id})
