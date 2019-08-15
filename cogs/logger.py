@@ -85,6 +85,13 @@ class Logger(commands.Cog):
         await chan.send(embed=embed)
 
     @commands.Cog.listener()
+    async def on_message(self, msg):
+        if msg.channel.type != discord.ChannelType.text:
+            return
+
+        await self.bot.db.messages.insert_one({'msg_id': msg.id, 'content': msg.content, 'author_id': msg.author.id, 'channel_id': msg.channel.id})
+
+    @commands.Cog.listener()
     async def on_message_edit(self, before, after):
         if before.author.bot:
             return
