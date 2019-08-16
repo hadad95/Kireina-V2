@@ -33,7 +33,7 @@ class Mod(commands.Cog):
 
     @commands.has_role(MODS_ROLE)
     @commands.command()
-    async def mute(self, ctx, member: discord.Member, reason=''):
+    async def mute(self, ctx, member: discord.Member, *, reason=''):
         if any(self.muted_role == role.id for role in member.roles): #role.id == self.muted_role:
             await ctx.send(f'`{member}` is already muted')
             return
@@ -55,14 +55,14 @@ class Mod(commands.Cog):
         embed.set_footer(text=f'Case #{case_id}')
         case_msg = await chan.send(embed=embed)
 
-        doc = {'case_id': case_id, 'case_msg_id': case_msg.id, 'muted_user_id': member.id, 'mod_id': ctx.author.id, 'reason': reason}
+        doc = {'case_id': case_id, 'case_msg_id': case_msg.id, 'muted_user_id': member.id, 'mod_id': ctx.author.id, 'timestamp': embed.timestamp, 'reason': reason}
         await self.bot.db.mutes.insert_one(doc)
         await ctx.send(f'Muted `{member}` successfully!')
         self.mutes[case_id] = doc
 
     @commands.has_role(MODS_ROLE)
     @commands.command()
-    async def unmute(self, ctx, member: discord.Member, reason=''):
+    async def unmute(self, ctx, member: discord.Member, *, reason=''):
         if not any(self.muted_role == role.id for role in member.roles):
             await ctx.send('That member is not muted you dumdum')
             return
@@ -88,6 +88,32 @@ class Mod(commands.Cog):
         embed.timestamp = datetime.utcnow()
         await chan.send(embed=embed)
         await ctx.send(f'Unmuted `{member}` successfully!')
+
+    @commands.has_role(MODS_ROLE)
+    @commands.command()
+    async def reason(self, ctx, case_id: int, *, reason):
+        case = await self.bot.db.mutes.find_one({'case_id': case_id})
+        if not case:
+            await ctx.send(f'Case #{case_id} not found!')
+            return
+
+        chan = self.bot.get_channel(self.config['channels']['kicks_bans_mutes'])
+        msg = await chan.fetch_message(case['case_msg_id'])
+        member = ctx.guild.get_member(case['muted_user_id'])
+        await self.bot.db.mutes.update_one({'case_id': case_id}, {'$set': {'reason': reason}})
+        embed = discord.Embed()
+        embed.set_author(name='Member muted', icon_url=member.avatar_url)
+        embed.add_field(name='User', value=member, inline=False)
+        embed.add_field(name='Moderator', value=ctx.author, inline=False)
+        embed.add_field(name='Reason', value=reason, inline=False)
+        embed.set_thumbnail(url=member.avatar_url)
+        embed.colour = discord.Colour.gold()
+        embed.timestamp = case['timestamp']
+        embed.set_footer(text=f'Case #{case_id}')
+
+        await msg.edit(embed=embed)
+        await ctx.send(f'Reason changed for case #{case_id}')
+
 
 def setup(bot):
     bot.add_cog(Mod(bot))
