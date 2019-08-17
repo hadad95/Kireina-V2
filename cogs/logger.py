@@ -2,11 +2,13 @@ from datetime import datetime
 import random
 import discord
 from discord.ext import commands
+import re
 
 class Logger(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.config = bot.config
+        self.inv_exp = re.compile(r'discord(?:app\.com\/invite|\.gg)\/([a-z0-9]{1,16})', re.IGNORECASE)
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
@@ -90,6 +92,15 @@ class Logger(commands.Cog):
             return
 
         await self.bot.db.messages.insert_one({'msg_id': msg.id, 'content': msg.content, 'author_id': msg.author.id, 'channel_id': msg.channel.id})
+
+        # check for invites
+        matches = self.inv_exp.findall(msg.content)
+        if matches:
+            guild_invites = await msg.guild.invites()
+            for match in matches:
+                if not any(match == inv.code for inv in guild_invites):
+                    if discord.utils.get(msg.author.roles, id=self.config['roles']['mods']) is None and msg.channel.id != self.config['channels']['promotions']:
+                        await msg.delete()
 
     """
     @commands.Cog.listener()
