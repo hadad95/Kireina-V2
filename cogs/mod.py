@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from pymongo import ReturnDocument
 
-MODS_ROLE = 0
+STAFF_ROLE = 0
 
 class Mod(commands.Cog):
     def __init__(self, bot):
@@ -11,29 +11,29 @@ class Mod(commands.Cog):
         self.config = self.bot.config
         self.muted_role = self.config['roles']['muted']
         self.mutes = {}
-        global MODS_ROLE
-        MODS_ROLE = self.config['roles']['mods']
+        global STAFF_ROLE
+        STAFF_ROLE = self.config['roles']['staff']
 
     @commands.command()
-    @commands.has_role(MODS_ROLE)
+    @commands.has_role(STAFF_ROLE)
     async def kick(self, ctx, member: discord.Member, *, reason=''):
         await member.kick(reason=reason)
         await ctx.send(f'Successfully kicked `{member}`!')
 
     @commands.command()
-    @commands.has_role(MODS_ROLE)
+    @commands.has_role(STAFF_ROLE)
     async def ban(self, ctx, user: discord.User, *, reason=''):
         await ctx.guild.ban(user, reason=reason)
         await ctx.send(f'Successfully banned `{user}`!')
 
-    @commands.has_role(MODS_ROLE)
+    @commands.has_role(STAFF_ROLE)
     @commands.command()
     async def hackban(self, ctx, user_id: int, *, reason=''):
         user = await self.bot.fetch_user(user_id)
         await ctx.guild.ban(user, reason=reason)
         await ctx.send(f'Successfully banned `{user}`!')
 
-    @commands.has_role(MODS_ROLE)
+    @commands.has_role(STAFF_ROLE)
     @commands.command()
     async def mute(self, ctx, member: discord.Member, *, reason=''):
         if any(self.muted_role == role.id for role in member.roles): #role.id == self.muted_role:
@@ -62,7 +62,7 @@ class Mod(commands.Cog):
         await ctx.send(f'Muted `{member}` successfully!')
         self.mutes[case_id] = doc
 
-    @commands.has_role(MODS_ROLE)
+    @commands.has_role(STAFF_ROLE)
     @commands.command()
     async def unmute(self, ctx, member: discord.Member, *, reason=''):
         if not any(self.muted_role == role.id for role in member.roles):
@@ -91,7 +91,7 @@ class Mod(commands.Cog):
         await chan.send(embed=embed)
         await ctx.send(f'Unmuted `{member}` successfully!')
 
-    @commands.has_role(MODS_ROLE)
+    @commands.has_role(STAFF_ROLE)
     @commands.command()
     async def reason(self, ctx, case_id: int, *, reason):
         case = await self.bot.db.mutes.find_one({'case_id': case_id})

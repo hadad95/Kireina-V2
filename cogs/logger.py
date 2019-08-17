@@ -99,7 +99,7 @@ class Logger(commands.Cog):
             guild_invites = await msg.guild.invites()
             for match in matches:
                 if not any(match == inv.code for inv in guild_invites):
-                    if discord.utils.get(msg.author.roles, id=self.config['roles']['mods']) is None and msg.channel.id != self.config['channels']['promotions']:
+                    if discord.utils.get(msg.author.roles, id=self.config['roles']['staff']) is None and msg.channel.id != self.config['channels']['promotions']:
                         await msg.delete()
 
     """
