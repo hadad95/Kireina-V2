@@ -13,13 +13,14 @@ class Kireina(commands.Bot):
         cogs = [
             'cogs.logger',
             'cogs.mod',
-            'cogs.automation'
+            'cogs.automation',
+            'cogs.owner'
         ]
 
         for cog in cogs:
             try:
                 self.load_extension(cog)
-                print('Loaded "{cog}" successfully!')
+                print(f'Loaded "{cog}" successfully!')
             except SyntaxError:
                 print(f'Failed to load "{cog}" because of a syntaxerror.')
             except ImportError as ex:
