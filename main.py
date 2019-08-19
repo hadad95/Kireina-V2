@@ -27,7 +27,7 @@ class Kireina(commands.Bot):
                 print(f'Failed to load "{cog}" because of an importerror.')
                 print(ex)
 
-        self.dbclient = AsyncIOMotorClient('mongodb://localhost:27017/')
+        self.dbclient = AsyncIOMotorClient('mongodb://localhost:27017/', io_loop = self.loop)
         self.db = self.dbclient.kireina
         self.loop.run_until_complete(self.initialize_db())
 
@@ -41,6 +41,8 @@ class Kireina(commands.Bot):
             await self.db.create_collection('mutes')
             await self.db.mutes.create_index('case_id', unique=True)
             await self.db.mutes.insert_one({'_id': 'current_case', 'value': 0})
+
+        print('Done!')
 
 if __name__ == '__main__':
     # logging stuff
