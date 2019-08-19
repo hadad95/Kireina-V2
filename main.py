@@ -35,7 +35,7 @@ class Kireina(commands.Bot):
         print(f'READY! Logged in as {self.user}')
 
     async def initialize_db(self):
-        print('Initializing database...')
+        print('Connecting to database...')
         if not 'mutes' in await self.db.list_collection_names():
             print('"mutes" collection not found. Creating and initializing a new collection...')
             await self.db.create_collection('mutes')
