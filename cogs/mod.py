@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from pymongo import ReturnDocument
 
-STAFF_ROLE = 0
+STAFF_ROLE = 608333944106123294
 
 class Mod(commands.Cog):
     def __init__(self, bot):
@@ -11,8 +11,6 @@ class Mod(commands.Cog):
         self.config = self.bot.config
         self.muted_role = self.config['roles']['muted']
         self.mutes = {}
-        global STAFF_ROLE
-        STAFF_ROLE = self.config['roles']['staff']
 
     @commands.command()
     @commands.has_role(STAFF_ROLE)
