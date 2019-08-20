@@ -2,6 +2,7 @@ import ast
 import textwrap
 import discord
 from discord.ext import commands
+import config
 
 def insert_returns(body):
     # insert return stmt if the last expression is a expression statement

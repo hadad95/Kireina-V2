@@ -1,14 +1,13 @@
 import sys
-import json
 import logging
 import discord
 from discord.ext import commands
 from motor.motor_asyncio import AsyncIOMotorClient
+import config
 
 class Kireina(commands.Bot):
-    def __init__(self, config):
+    def __init__(self):
         super().__init__(command_prefix=';;')
-        self.config = config
         print('Loading extensions/cogs...')
         cogs = [
             'cogs.logger',
@@ -27,7 +26,7 @@ class Kireina(commands.Bot):
                 print(f'Failed to load "{cog}" because of an importerror.')
                 print(ex)
 
-        self.dbclient = AsyncIOMotorClient('mongodb://localhost:27017/', io_loop = self.loop)
+        self.dbclient = AsyncIOMotorClient('mongodb://localhost:27017/', io_loop=self.loop)
         self.db = self.dbclient.kireina
         self.loop.run_until_complete(self.initialize_db())
 
@@ -52,9 +51,12 @@ if __name__ == '__main__':
     handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
     logger.addHandler(handler)
 
+    """
     # loading config and starting the bot
     print('Loading config.json...')
     with open('config.json', 'r') as f:
         cfg = json.load(f)
     bot = Kireina(cfg)
-    bot.run(cfg['token'])
+    """
+    bot = Kireina()
+    bot.run(config.TOKEN)
