@@ -9,7 +9,7 @@ import utils
 class Logger(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.inv_exp = re.compile(r'discord(?:app\.com\/invite|\.gg)\/([a-z0-9]{1,16})', re.IGNORECASE)
+        self.regex_inv = re.compile(r'discord(?:app\.com\/invite|\.gg)\/([a-z0-9]{1,16})', re.IGNORECASE)
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
@@ -107,7 +107,7 @@ class Logger(commands.Cog):
         await self.bot.db.messages.insert_one({'msg_id': msg.id, 'content': msg.content, 'author_id': msg.author.id, 'channel_id': msg.channel.id})
 
         # check for invites
-        matches = self.inv_exp.findall(msg.content)
+        matches = self.regex_inv.findall(msg.content)
         if matches:
             guild_invites = await msg.guild.invites()
             for match in matches:

@@ -10,7 +10,7 @@ class CaseType(Enum):
     KICK = 3
     BAN = 4
 
-def get_modlog_embed(case_type, case_id, member, moderator, timestamp=None, reason='None'):
+def get_modlog_embed(case_type, case_id, member, moderator, timestamp=None, *, reason='None', unmute_at=None):
     embed = discord.Embed()
     if case_type == CaseType.MUTE:
         embed.set_author(name='Member muted', icon_url=member.avatar_url)
@@ -29,7 +29,11 @@ def get_modlog_embed(case_type, case_id, member, moderator, timestamp=None, reas
     embed.add_field(name='Moderator', value=str(moderator), inline=False)
     embed.add_field(name='Reason', value=reason if reason else 'None', inline=False)
     embed.set_thumbnail(url=member.avatar_url)
-    embed.set_footer(text=f'Case #{case_id}')
+    if unmute_at:
+        txt = unmute_at.strftime('%Y-%m-%d %H:%M UTC')
+        embed.set_footer(text=f'Case #{case_id} - Unmute at: {txt}')
+    else:
+        embed.set_footer(text=f'Case #{case_id}')
 
     if timestamp:
         embed.timestamp = timestamp
