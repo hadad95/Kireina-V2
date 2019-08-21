@@ -41,7 +41,7 @@ class Mod(commands.Cog):
         result = await self.bot.db.modlog.find_one_and_update({'_id': 'current_case'}, {'$inc': {'value': 1}}, return_document=ReturnDocument.AFTER)
         case_id = result['value']
         """
-        case_id = utils.get_next_case_id(self.bot.db)
+        case_id = await utils.get_next_case_id(self.bot.db)
         """
         embed = discord.Embed()
         embed.set_author(name='Member muted', icon_url=member.avatar_url)
@@ -60,7 +60,7 @@ class Mod(commands.Cog):
         doc = {'case_id': case_id, 'case_type': utils.CaseType.MUTE.value, 'case_msg_id': case_msg.id, 'user_id': member.id, 'mod_id': ctx.author.id, 'timestamp': embed.timestamp, 'reason': reason}
         await self.bot.db.modlog.insert_one(doc)
         """
-        await utils.create_db_case(self.bot.db, case_id, utils.CaseType.MUTE, case_msg.id, member.id, ctx.author.id, timestamp, reason)
+        await utils.create_db_case(self.bot.db, case_id, utils.CaseType.MUTE, case_msg.id, member, ctx.author, timestamp, reason)
         await ctx.send(f'Muted `{member}` successfully!')
 
     @commands.has_role(config.ROLE_STAFF)
@@ -91,11 +91,11 @@ class Mod(commands.Cog):
         embed.colour = discord.Colour.green()
         embed.timestamp = datetime.utcnow()
         """
-        case_id = utils.get_next_case_id(self.bot.db)
+        case_id = await utils.get_next_case_id(self.bot.db)
         timestamp = datetime.utcnow()
         embed = utils.get_modlog_embed(utils.CaseType.UNMUTE, case_id, member, ctx.author, timestamp, reason if reason else 'None')
         case_msg = await chan.send(embed=embed)
-        await utils.create_db_case(self.bot.db, case_id, utils.CaseType.MUTE, case_msg.id, member.id, ctx.author.id, timestamp, reason)
+        await utils.create_db_case(self.bot.db, case_id, utils.CaseType.UNMUTE, case_msg.id, member, ctx.author, timestamp, reason)
         await ctx.send(f'Unmuted `{member}` successfully!')
 
     @commands.has_role(config.ROLE_STAFF)
