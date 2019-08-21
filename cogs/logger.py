@@ -14,7 +14,7 @@ class Logger(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member):
         welcome = self.bot.get_channel(config.CHAN_WELCOME)
-        await welcome.send(f'Welcome to Hearts, {member.mention}! We\'re super happy to have you. Make sure you look at RULES_CHANNEL_MENTION and ANNOUNCEMENTS_CHANNEL_MENTION to stay up to date on things! {random.choices(member.guild.emojis)}')
+        await welcome.send(f'Welcome to Hearts, {member.mention}! We\'re super happy to have you. Make sure you look at RULES_CHANNEL_MENTION and ANNOUNCEMENTS_CHANNEL_MENTION to stay up to date on things! {random.choice(member.guild.emojis)}')
         embed = discord.Embed()
         embed.set_author(name='Member joined', icon_url=member.avatar_url)
         embed.colour = discord.Colour.green()
