@@ -31,21 +31,19 @@ class Logger(commands.Cog):
         entries = await member.guild.audit_logs(limit=1, action=discord.AuditLogAction.kick).flatten()
         # member got kicked
         if len(entries) == 1 and entries[0].target.id == member.id and (datetime.utcnow() - entries[0].created_at).total_seconds() <= 2:
-            """
-            embed = discord.Embed()
-            embed.set_author(name='Member kicked', icon_url=member.avatar_url)
-            embed.add_field(name='User', value=f'{member.mention} ({member})', inline=False)
-            embed.add_field(name='Moderator', value=str(entries[0].user), inline=False)
-            embed.add_field(name='Reason', value=entries[0].reason if entries[0].reason else 'None', inline=False)
-            embed.colour = discord.Colour.gold()
-            embed.set_thumbnail(url=member.avatar_url)
-            embed.timestamp = datetime.utcnow()
-            """
+            mod = entries[0].user
+            reason = entries[0].reason
             case_id = await utils.get_next_case_id(self.bot.db)
+            if mod.id == self.bot.user.id:
+                mod_cog = self.bot.get_cog('Mod')
+                if mod_cog.last_kick_ctx and mod_cog.last_kick_ctx.command.name == 'kick' and mod_cog.last_kick_ctx.kwargs['user'].id == member.id:
+                    member = mod_cog.last_kick_ctx.kwargs['user']
+                    mod = mod_cog.last_kick_ctx.author
+
             timestamp = datetime.utcnow()
-            embed = utils.get_modlog_embed(utils.CaseType.KICK, case_id, member, entries[0].user, timestamp, entries[0].reason if entries[0].reason else 'None')
+            embed = utils.get_modlog_embed(utils.CaseType.KICK, case_id, member, mod, timestamp, reason=reason if reason else 'None')
             case_msg = await kicks.send(embed=embed)
-            await utils.create_db_case(self.bot.db, case_id, utils.CaseType.KICK, case_msg.id, member, entries[0].user, timestamp, entries[0].reason)
+            await utils.create_db_case(self.bot.db, case_id, utils.CaseType.KICK, case_msg.id, member, mod, timestamp, reason)
         # member normally left
         else:
             if any(config.ROLE_MUTED == role.id for role in member.roles):
@@ -62,20 +60,23 @@ class Logger(commands.Cog):
     async def on_member_ban(self, guild, user):
         bans = self.bot.get_channel(config.CHAN_MODLOG)
         entries = await guild.audit_logs(limit=1, action=discord.AuditLogAction.ban).flatten()
-        """
-        embed = discord.Embed()
-        embed.set_author(name='Member banned', icon_url=user.avatar_url)
-        embed.set_thumbnail(url=user.avatar_url)
-        embed.add_field(name='User', value=str(user), inline=False)
-        embed.add_field(name='Moderator', value=str(entries[0].user), inline=False)
-        embed.add_field(name='Reason', value=entries[0].reason if entries[0].reason else 'None', inline=False)
-        embed.colour = discord.Colour.red()
-        """
+        mod = entries[0].user
+        reason = entries[0].reason
+        if mod.id == self.bot.user.id:
+            mod_cog = self.bot.get_cog('Mod')
+            if mod_cog.last_ban_ctx:
+                if mod_cog.last_ban_ctx.command.name == 'ban' and mod_cog.last_ban_ctx.kwargs['user'].id == user.id:
+                    user = mod_cog.last_ban_ctx.kwargs['user']
+                    mod = mod_cog.last_ban_ctx.author
+                elif mod_cog.last_ban_ctx.command.name == 'hackban' and mod_cog.last_ban_ctx.kwargs['user_id'] == user.id:
+                    user = self.bot.get_user(mod_cog.last_ban_ctx.kwargs['user_id'])
+                    mod = mod_cog.last_ban_ctx.author
+
         case_id = await utils.get_next_case_id(self.bot.db)
         timestamp = datetime.utcnow()
-        embed = utils.get_modlog_embed(utils.CaseType.BAN, case_id, user, entries[0].user, timestamp, entries[0].reason if entries[0].reason else 'None')
+        embed = utils.get_modlog_embed(utils.CaseType.BAN, case_id, user, mod, timestamp, reason=reason if reason else 'None')
         case_msg = await bans.send(embed=embed)
-        await utils.create_db_case(self.bot.db, case_id, utils.CaseType.BAN, case_msg.id, user, entries[0].user, timestamp, entries[0].reason)
+        await utils.create_db_case(self.bot.db, case_id, utils.CaseType.BAN, case_msg.id, user, mod, timestamp, reason)
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):

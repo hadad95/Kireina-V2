@@ -11,6 +11,8 @@ class Mod(commands.Cog):
         self.bot = bot
         self.regex_reason = re.compile(r'\|((?!.*\|).+)$')
         self.regex_time = re.compile(r'((?P<weeks>\d+?)\s?w[a-zA-Z]*)?\s*((?P<days>\d+?)\s?d[a-zA-Z]*)?\s*((?P<hours>\d+?)\s?h[a-zA-Z]*)?\s*((?P<minutes>\d+?)\s?m[a-zA-Z]*)?\s*((?P<seconds>\d+?)\s?s[a-zA-Z]*)?', re.IGNORECASE)
+        self.last_ban_ctx = None
+        self.last_kick_ctx = None
         self.mutes = {}
         #self.my_loop.start()
 
@@ -23,14 +25,16 @@ class Mod(commands.Cog):
 
     @commands.command()
     @commands.has_role(config.ROLE_STAFF)
-    async def kick(self, ctx, member: discord.Member, *, reason=''):
-        await member.kick(reason=reason)
-        await ctx.send(f'Successfully kicked `{member}`!')
+    async def kick(self, ctx, user: discord.Member, *, reason=''):
+        await user.kick(reason=reason)
+        self.last_kick_ctx = ctx
+        await ctx.send(f'Successfully kicked `{user}`!')
 
     @commands.command()
     @commands.has_role(config.ROLE_STAFF)
     async def ban(self, ctx, user: discord.User, *, reason=''):
         await ctx.guild.ban(user, reason=reason)
+        self.last_ban_ctx = ctx
         await ctx.send(f'Successfully banned `{user}`!')
 
     @commands.has_role(config.ROLE_STAFF)
@@ -38,6 +42,7 @@ class Mod(commands.Cog):
     async def hackban(self, ctx, user_id: int, *, reason=''):
         user = await self.bot.fetch_user(user_id)
         await ctx.guild.ban(user, reason=reason)
+        self.last_ban_ctx = ctx
         await ctx.send(f'Successfully banned `{user}`!')
 
     @commands.has_role(config.ROLE_STAFF)
