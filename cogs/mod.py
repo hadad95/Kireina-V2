@@ -14,14 +14,33 @@ class Mod(commands.Cog):
         self.last_ban_ctx = None
         self.last_kick_ctx = None
         self.mutes = {}
-        #self.my_loop.start()
+        self.my_loop.start()
 
-    """
     @tasks.loop(seconds=3)
     async def my_loop(self):
-        print('Hello world')
-        await asyncio.sleep(10)
-    """
+        to_be_removed = None
+        for member_id, time in self.mutes.items():
+            if datetime.utcnow() > time:
+                print('SHOULD UNMUTE NOW')
+                guild = self.bot.get_guild(config.GUILD)
+                chan = self.bot.get_channel(config.CHAN_MODLOG)
+                member = guild.get_member(member_id)
+                reason = 'Time\'s up!'
+                try:
+                    await member.remove_roles(discord.Object(id=config.ROLE_MUTED), reason=reason)
+                except:
+                    pass
+
+                to_be_removed = member_id
+                case_id = await utils.get_next_case_id(self.bot.db)
+                timestamp = datetime.utcnow()
+                embed = utils.get_modlog_embed(utils.CaseType.UNMUTE, case_id, member, self.bot.user, timestamp, reason=reason)
+                case_msg = await chan.send(embed=embed)
+                await utils.create_db_case(self.bot.db, case_id, utils.CaseType.UNMUTE, case_msg.id, member, self.bot.user, timestamp, reason)
+                break
+
+        if to_be_removed:
+            self.mutes.pop(to_be_removed, None)
 
     @commands.command()
     async def test(self, ctx, *, arg1='1'):
@@ -57,7 +76,7 @@ class Mod(commands.Cog):
             return
 
         chan = self.bot.get_channel(config.CHAN_MODLOG)
-        await member.add_roles(ctx.guild.get_role(config.ROLE_MUTED), reason=reason)
+        await member.add_roles(discord.Object(id=config.ROLE_MUTED), reason=reason)
         case_id = await utils.get_next_case_id(self.bot.db)
         timestamp = datetime.utcnow()
         unmute_at = None
@@ -95,7 +114,7 @@ class Mod(commands.Cog):
 
         parts = parts.groupdict()
         time_params = {}
-        for (name, param) in parts.iteritems():
+        for name, param in parts.items():
             if param:
                 time_params[name] = int(param)
 
@@ -117,7 +136,7 @@ class Mod(commands.Cog):
             time_str = self.regex_reason.search(reason)
             if time_str:
                 time_added = self.parse_timedelta(time_str[1].strip())
-                unmute_at = datetime.utcnow() + time_added
+                unmute_at = case['timestamp'] + time_added
                 self.mutes[member.id] = unmute_at
 
         await utils.update_db_case_reason(self.bot.db, case_id, reason)
