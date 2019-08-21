@@ -1,9 +1,10 @@
 from datetime import datetime
 import random
+import re
 import discord
 from discord.ext import commands
-import re
 import config
+import utils
 
 class Logger(commands.Cog):
     def __init__(self, bot):
@@ -30,6 +31,7 @@ class Logger(commands.Cog):
         entries = await member.guild.audit_logs(limit=1, action=discord.AuditLogAction.kick).flatten()
         # member got kicked
         if len(entries) == 1 and entries[0].target.id == member.id and (datetime.utcnow() - entries[0].created_at).total_seconds() <= 2:
+            """
             embed = discord.Embed()
             embed.set_author(name='Member kicked', icon_url=member.avatar_url)
             embed.add_field(name='User', value=f'{member.mention} ({member})', inline=False)
@@ -38,7 +40,12 @@ class Logger(commands.Cog):
             embed.colour = discord.Colour.gold()
             embed.set_thumbnail(url=member.avatar_url)
             embed.timestamp = datetime.utcnow()
-            await kicks.send(embed=embed)
+            """
+            case_id = await utils.get_next_case_id(self.bot.db)
+            timestamp = datetime.utcnow()
+            embed = utils.get_modlog_embed(utils.CaseType.KICK, case_id, member, entries[0].user, timestamp, entries[0].reason if entries[0].reason else 'None')
+            case_msg = await kicks.send(embed=embed)
+            await utils.create_db_case(self.bot.db, case_id, utils.CaseType.KICK, case_msg.id, member, entries[0].user, timestamp, entries[0].reason)
         # member normally left
         else:
             if any(config.ROLE_MUTED == role.id for role in member.roles):
@@ -54,15 +61,21 @@ class Logger(commands.Cog):
     @commands.Cog.listener()
     async def on_member_ban(self, guild, user):
         bans = self.bot.get_channel(config.CHAN_MODLOG)
-        embed = discord.Embed()
         entries = await guild.audit_logs(limit=1, action=discord.AuditLogAction.ban).flatten()
+        """
+        embed = discord.Embed()
         embed.set_author(name='Member banned', icon_url=user.avatar_url)
         embed.set_thumbnail(url=user.avatar_url)
         embed.add_field(name='User', value=str(user), inline=False)
         embed.add_field(name='Moderator', value=str(entries[0].user), inline=False)
         embed.add_field(name='Reason', value=entries[0].reason if entries[0].reason else 'None', inline=False)
         embed.colour = discord.Colour.red()
-        await bans.send(embed=embed)
+        """
+        case_id = await utils.get_next_case_id(self.bot.db)
+        timestamp = datetime.utcnow()
+        embed = utils.get_modlog_embed(utils.CaseType.BAN, case_id, user, entries[0].user, timestamp, entries[0].reason if entries[0].reason else 'None')
+        case_msg = await bans.send(embed=embed)
+        await utils.create_db_case(self.bot.db, case_id, utils.CaseType.BAN, case_msg.id, user, entries[0].user, timestamp, entries[0].reason)
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):

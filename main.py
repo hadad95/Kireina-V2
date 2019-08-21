@@ -35,11 +35,11 @@ class Kireina(commands.Bot):
 
     async def initialize_db(self):
         print('Connecting to database...')
-        if not 'mutes' in await self.db.list_collection_names():
-            print('"mutes" collection not found. Creating and initializing a new collection...')
-            await self.db.create_collection('mutes')
-            await self.db.mutes.create_index('case_id', unique=True)
-            await self.db.mutes.insert_one({'_id': 'current_case', 'value': 0})
+        if not 'modlog' in await self.db.list_collection_names():
+            print('"modlog" collection not found. Creating and initializing a new collection...')
+            await self.db.create_collection('modlog')
+            await self.db.modlog.create_index('case_id', unique=True)
+            await self.db.modlog.insert_one({'_id': 'current_case', 'value': 0})
 
         print('Done!')
 
