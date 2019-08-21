@@ -1,8 +1,9 @@
-from enum import Enum
+from enum import Enum, unique
 from datetime import datetime
 from pymongo import ReturnDocument
 import discord
 
+@unique
 class CaseType(Enum):
     MUTE = 1
     UNMUTE = 2
