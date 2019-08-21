@@ -36,8 +36,8 @@ class Logger(commands.Cog):
             case_id = await utils.get_next_case_id(self.bot.db)
             if mod.id == self.bot.user.id:
                 mod_cog = self.bot.get_cog('Mod')
-                if mod_cog.last_kick_ctx and mod_cog.last_kick_ctx.command.name == 'kick' and mod_cog.last_kick_ctx.kwargs['user'].id == member.id:
-                    member = mod_cog.last_kick_ctx.kwargs['user']
+                if mod_cog.last_kick_ctx and mod_cog.last_kick_ctx.command.name == 'kick' and mod_cog.last_kick_ctx.args[2].id == member.id:
+                    member = mod_cog.last_kick_ctx.args[2]
                     mod = mod_cog.last_kick_ctx.author
 
             timestamp = datetime.utcnow()
@@ -65,11 +65,11 @@ class Logger(commands.Cog):
         if mod.id == self.bot.user.id:
             mod_cog = self.bot.get_cog('Mod')
             if mod_cog.last_ban_ctx:
-                if mod_cog.last_ban_ctx.command.name == 'ban' and mod_cog.last_ban_ctx.kwargs['user'].id == user.id:
-                    user = mod_cog.last_ban_ctx.kwargs['user']
+                if mod_cog.last_ban_ctx.command.name == 'ban' and mod_cog.last_ban_ctx.args[2].id == user.id:
+                    user = mod_cog.last_ban_ctx.args[2]
                     mod = mod_cog.last_ban_ctx.author
-                elif mod_cog.last_ban_ctx.command.name == 'hackban' and mod_cog.last_ban_ctx.kwargs['user_id'] == user.id:
-                    user = self.bot.get_user(mod_cog.last_ban_ctx.kwargs['user_id'])
+                elif mod_cog.last_ban_ctx.command.name == 'hackban' and mod_cog.last_ban_ctx.args[2] == user.id:
+                    user = self.bot.get_user(mod_cog.last_ban_ctx.args[2])
                     mod = mod_cog.last_ban_ctx.author
 
         case_id = await utils.get_next_case_id(self.bot.db)
