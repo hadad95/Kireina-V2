@@ -108,7 +108,7 @@ class Mod(commands.Cog):
 
         chan = self.bot.get_channel(config.CHAN_MODLOG)
         msg = await chan.fetch_message(case['case_msg_id'])
-        member = ctx.guild.get_member(case['user_id'])
+        member = self.bot.get_user(case['user_id'])
         await utils.update_db_case_reason(self.bot.db, case_id, reason)
         """
         await self.bot.db.modlog.update_one({'case_id': case_id}, {'$set': {'reason': reason}})
