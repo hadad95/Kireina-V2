@@ -14,10 +14,10 @@ class Mod(commands.Cog):
         self.last_ban_ctx = None
         self.last_kick_ctx = None
         self.mutes = {}
-        self.my_loop.start()
+        self.unmute_loop.start()
 
     @tasks.loop(seconds=3)
-    async def my_loop(self):
+    async def unmute_loop(self):
         to_be_removed = None
         for member_id, time in self.mutes.items():
             if datetime.utcnow() > time:
@@ -41,6 +41,10 @@ class Mod(commands.Cog):
 
         if to_be_removed:
             self.mutes.pop(to_be_removed, None)
+
+    @unmute_loop.before_loop
+    async def before_unmute_loop(self):
+        await self.bot.wait_until_ready()
 
     @commands.command()
     async def test(self, ctx, *, arg1='1'):
