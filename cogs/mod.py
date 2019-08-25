@@ -158,7 +158,11 @@ class Mod(commands.Cog):
 
     @commands.has_role(config.ROLE_STAFF)
     @commands.command()
-    async def clean(self, ctx, target: typing.Union[discord.Member, str], limit=100):
+    async def clean(self, ctx, target: typing.Union[discord.Member, str], limit=200):
+        if limit > 2000:
+            await ctx.send('The maximum limit is 2000 messages')
+            return
+
         deleted = None
         if isinstance(target, discord.Member):
             def is_member(msg):
