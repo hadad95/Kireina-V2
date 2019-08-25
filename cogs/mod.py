@@ -5,6 +5,7 @@ import discord
 from discord.ext import commands, tasks
 import config
 import utils
+import typing
 
 class Mod(commands.Cog):
     def __init__(self, bot):
@@ -155,6 +156,22 @@ class Mod(commands.Cog):
         await msg.edit(embed=embed)
         await ctx.send(f'Reason changed for case #{case_id}')
 
+    @commands.has_role(config.ROLE_STAFF)
+    @commands.command()
+    async def clean(self, ctx, target: typing.Union[discord.Member, str], limit=100):
+        deleted = None
+        if isinstance(target, discord.Member):
+            def is_member(msg):
+                return msg.author.id == target.id
+
+            deleted = await ctx.channel.purge(limit=limit, check=is_member)
+        elif isinstance(target, str) and 'bot' in target.lower():
+            def is_bot(msg):
+                return msg.author.bot
+
+            deleted = await ctx.channel.purge(limit=limit, check=is_bot)
+
+        await ctx.send(f'Done! Deleted {len(deleted)} messages.', delete_after=5)
 
 def setup(bot):
     bot.add_cog(Mod(bot))
