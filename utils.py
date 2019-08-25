@@ -76,7 +76,7 @@ async def update_db_case_reason(db, case_id, reason, unmute_at):
         await db.mutes.update_one({'case_id': case_id}, {'$set': {'user_id': modlog['user_id'], 'unmute_at': unmute_at}}, upsert=True)
 
 async def get_all_mutes(db):
-    result = await db.mutes.find({}).to_list()
+    result = await db.mutes.find().to_list(length=None)
     return result
 
 async def remove_mute(db, user_id):
