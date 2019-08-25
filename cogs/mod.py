@@ -47,10 +47,6 @@ class Mod(commands.Cog):
         await self.bot.wait_until_ready()
 
     @commands.command()
-    async def test(self, ctx, *, arg1='1'):
-        print(ctx.kwargs)
-
-    @commands.command()
     @commands.has_role(config.ROLE_STAFF)
     async def kick(self, ctx, user: discord.Member, *, reason=''):
         await user.kick(reason=reason)
