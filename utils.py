@@ -10,7 +10,7 @@ class CaseType(Enum):
     KICK = 3
     BAN = 4
 
-def get_modlog_embed(case_type, case_id, member, moderator, timestamp=None, *, reason='None', unmute_at=None):
+def create_modlog_embed(case_type, case_id, member, moderator, timestamp, reason, unmute_at):
     embed = discord.Embed()
     if case_type == CaseType.MUTE:
         embed.set_author(name='Member muted', icon_url=member.avatar_url)
@@ -46,7 +46,7 @@ async def get_next_case_id(db):
     result = await db.modlog.find_one_and_update({'_id': 'current_case'}, {'$inc': {'value': 1}}, return_document=ReturnDocument.AFTER)
     return result['value']
 
-async def create_db_case(db, case_id, case_type, case_msg_id, member, moderator, timestamp=None, reason=''):
+async def create_db_case(db, case_id, case_type, case_msg_id, member, moderator, timestamp, reason, unmute_at):
     doc = {
         'case_id': case_id,
         'case_type': case_type.value,
@@ -57,10 +57,27 @@ async def create_db_case(db, case_id, case_type, case_msg_id, member, moderator,
         'reason': reason
     }
     await db.modlog.insert_one(doc)
+    if case_type == CaseType.MUTE and unmute_at is not None:
+        obj = {
+            'case_id': case_id,
+            'user_id': member.id,
+            'unmute_at': unmute_at
+        }
+        await db.mutes.insert_one(obj)
+
     return doc
 
 async def get_db_case(db, case_id):
     return await db.modlog.find_one({'case_id': case_id})
 
-async def update_db_case_reason(db, case_id, reason):
-    await db.modlog.update_one({'case_id': case_id}, {'$set': {'reason': reason}})
+async def update_db_case_reason(db, case_id, reason, unmute_at):
+    modlog = await db.modlog.find_one_and_update({'case_id': case_id}, {'$set': {'reason': reason}}, return_document=ReturnDocument.AFTER)
+    if modlog['case_type'] == CaseType.MUTE.value and unmute_at is not None:
+        await db.mutes.update_one({'case_id': case_id}, {'$set': {'user_id': modlog['user_id'], 'unmute_at': unmute_at}}, upsert=True)
+
+async def get_all_mutes(db):
+    result = await db.mutes.find({}).to_list()
+    return result
+
+async def remove_mute(db, user_id):
+    await db.mutes.delete_many({'user_id': user_id})

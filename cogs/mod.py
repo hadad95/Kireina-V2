@@ -13,38 +13,44 @@ class Mod(commands.Cog):
         self.regex_time = re.compile(r'((?P<weeks>\d+?)\s?w[a-zA-Z]*)?\s*((?P<days>\d+?)\s?d[a-zA-Z]*)?\s*((?P<hours>\d+?)\s?h[a-zA-Z]*)?\s*((?P<minutes>\d+?)\s?m[a-zA-Z]*)?\s*((?P<seconds>\d+?)\s?s[a-zA-Z]*)?', re.IGNORECASE)
         self.last_ban_ctx = None
         self.last_kick_ctx = None
+        self.lock = asyncio.Lock(loop=self.bot.loop)
         self.mutes = {}
         self.unmute_loop.start()
 
     @tasks.loop(seconds=3)
     async def unmute_loop(self):
         to_be_removed = None
-        for member_id, time in self.mutes.items():
-            if datetime.utcnow() > time:
-                print('SHOULD UNMUTE NOW')
-                guild = self.bot.get_guild(config.GUILD)
-                chan = self.bot.get_channel(config.CHAN_MODLOG)
-                member = guild.get_member(member_id)
-                reason = 'Time\'s up!'
-                try:
-                    await member.remove_roles(discord.Object(id=config.ROLE_MUTED), reason=reason)
-                except:
-                    pass
+        async with self.lock:
+            for member_id, time in self.mutes.items():
+                if datetime.utcnow() > time:
+                    print('SHOULD UNMUTE NOW')
+                    guild = self.bot.get_guild(config.GUILD)
+                    chan = self.bot.get_channel(config.CHAN_MODLOG)
+                    member = guild.get_member(member_id)
+                    reason = 'Time\'s up!'
+                    try:
+                        await member.remove_roles(discord.Object(id=config.ROLE_MUTED), reason=reason)
+                    except:
+                        pass
 
-                to_be_removed = member_id
-                case_id = await utils.get_next_case_id(self.bot.db)
-                timestamp = datetime.utcnow()
-                embed = utils.get_modlog_embed(utils.CaseType.UNMUTE, case_id, member, self.bot.user, timestamp, reason=reason)
-                case_msg = await chan.send(embed=embed)
-                await utils.create_db_case(self.bot.db, case_id, utils.CaseType.UNMUTE, case_msg.id, member, self.bot.user, timestamp, reason)
-                break
+                    to_be_removed = member_id
+                    case_id = await utils.get_next_case_id(self.bot.db)
+                    timestamp = datetime.utcnow()
+                    embed = utils.create_modlog_embed(utils.CaseType.UNMUTE, case_id, member, self.bot.user, timestamp, reason, None)
+                    case_msg = await chan.send(embed=embed)
+                    await utils.create_db_case(self.bot.db, case_id, utils.CaseType.UNMUTE, case_msg.id, member, self.bot.user, timestamp, reason, None)
+                    break
 
-        if to_be_removed:
-            self.mutes.pop(to_be_removed, None)
+            if to_be_removed:
+                self.mutes.pop(to_be_removed, None)
+                await utils.remove_mute(self.bot.db, to_be_removed)
 
     @unmute_loop.before_loop
     async def before_unmute_loop(self):
         await self.bot.wait_until_ready()
+        results = await utils.get_all_mutes(self.bot.db)
+        for result in results:
+            self.mutes[result['user_id']] = result['unmute_at']
 
     @commands.command()
     @commands.has_role(config.ROLE_STAFF)
@@ -84,11 +90,12 @@ class Mod(commands.Cog):
         if time_str:
             time_added = self.parse_timedelta(time_str[1].strip())
             unmute_at = datetime.utcnow() + time_added
-            self.mutes[member.id] = unmute_at
+            async with self.lock:
+                self.mutes[member.id] = unmute_at
 
-        embed = utils.get_modlog_embed(utils.CaseType.MUTE, case_id, member, ctx.author, timestamp, reason=reason if reason else 'None', unmute_at=unmute_at)
+        embed = utils.create_modlog_embed(utils.CaseType.MUTE, case_id, member, ctx.author, timestamp, reason if reason else 'None', unmute_at)
         case_msg = await chan.send(embed=embed)
-        await utils.create_db_case(self.bot.db, case_id, utils.CaseType.MUTE, case_msg.id, member, ctx.author, timestamp, reason)
+        await utils.create_db_case(self.bot.db, case_id, utils.CaseType.MUTE, case_msg.id, member, ctx.author, timestamp, reason, unmute_at)
         await ctx.send(f'Muted `{member}` successfully!')
 
     @commands.has_role(config.ROLE_STAFF)
@@ -98,13 +105,16 @@ class Mod(commands.Cog):
             await ctx.send('That member is not muted you dumdum')
             return
 
+        async with self.lock:
+            self.mutes.pop(member.id, None)
+
         chan = self.bot.get_channel(config.CHAN_MODLOG)
         await member.remove_roles(ctx.guild.get_role(config.ROLE_MUTED), reason=reason)
         case_id = await utils.get_next_case_id(self.bot.db)
         timestamp = datetime.utcnow()
-        embed = utils.get_modlog_embed(utils.CaseType.UNMUTE, case_id, member, ctx.author, timestamp, reason=reason if reason else 'None')
+        embed = utils.create_modlog_embed(utils.CaseType.UNMUTE, case_id, member, ctx.author, timestamp, reason if reason else 'None', None)
         case_msg = await chan.send(embed=embed)
-        await utils.create_db_case(self.bot.db, case_id, utils.CaseType.UNMUTE, case_msg.id, member, ctx.author, timestamp, reason)
+        await utils.create_db_case(self.bot.db, case_id, utils.CaseType.UNMUTE, case_msg.id, member, ctx.author, timestamp, reason, None)
         await ctx.send(f'Unmuted `{member}` successfully!')
 
     def parse_timedelta(self, time_str):
@@ -137,10 +147,11 @@ class Mod(commands.Cog):
             if time_str:
                 time_added = self.parse_timedelta(time_str[1].strip())
                 unmute_at = case['timestamp'] + time_added
-                self.mutes[member.id] = unmute_at
+                async with self.lock:
+                    self.mutes[member.id] = unmute_at
 
-        await utils.update_db_case_reason(self.bot.db, case_id, reason)
-        embed = utils.get_modlog_embed(utils.CaseType(case['case_type']), case_id, member, ctx.author, case['timestamp'], reason=reason, unmute_at=unmute_at)
+        await utils.update_db_case_reason(self.bot.db, case_id, reason, unmute_at)
+        embed = utils.create_modlog_embed(utils.CaseType(case['case_type']), case_id, member, ctx.author, case['timestamp'], reason, unmute_at)
         await msg.edit(embed=embed)
         await ctx.send(f'Reason changed for case #{case_id}')
 

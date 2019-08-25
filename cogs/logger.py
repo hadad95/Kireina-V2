@@ -41,9 +41,9 @@ class Logger(commands.Cog):
                     mod = mod_cog.last_kick_ctx.author
 
             timestamp = datetime.utcnow()
-            embed = utils.get_modlog_embed(utils.CaseType.KICK, case_id, member, mod, timestamp, reason=reason if reason else 'None')
+            embed = utils.create_modlog_embed(utils.CaseType.KICK, case_id, member, mod, timestamp, reason if reason else 'None', None)
             case_msg = await kicks.send(embed=embed)
-            await utils.create_db_case(self.bot.db, case_id, utils.CaseType.KICK, case_msg.id, member, mod, timestamp, reason)
+            await utils.create_db_case(self.bot.db, case_id, utils.CaseType.KICK, case_msg.id, member, mod, timestamp, reason, None)
         # member normally left
         else:
             if any(config.ROLE_MUTED == role.id for role in member.roles):
@@ -74,9 +74,9 @@ class Logger(commands.Cog):
 
         case_id = await utils.get_next_case_id(self.bot.db)
         timestamp = datetime.utcnow()
-        embed = utils.get_modlog_embed(utils.CaseType.BAN, case_id, user, mod, timestamp, reason=reason if reason else 'None')
+        embed = utils.create_modlog_embed(utils.CaseType.BAN, case_id, user, mod, timestamp, reason if reason else 'None', None)
         case_msg = await bans.send(embed=embed)
-        await utils.create_db_case(self.bot.db, case_id, utils.CaseType.BAN, case_msg.id, user, mod, timestamp, reason)
+        await utils.create_db_case(self.bot.db, case_id, utils.CaseType.BAN, case_msg.id, user, mod, timestamp, reason, None)
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
