@@ -22,7 +22,7 @@ class Mod(commands.Cog):
         async with self.lock:
             for member_id, time in self.mutes.items():
                 if datetime.utcnow() > time:
-                    print('SHOULD UNMUTE NOW')
+                    print(f'Unmuting {member_id}...')
                     guild = self.bot.get_guild(config.GUILD)
                     # chan = self.bot.get_channel(config.CHAN_MODLOG)
                     member = guild.get_member(member_id)

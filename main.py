@@ -10,7 +10,7 @@ class Kireina(commands.Bot):
         super().__init__(command_prefix=';;')
         print('Loading extensions/cogs...')
         cogs = [
-            'cogs.logger',
+            'cogs.events',
             'cogs.mod',
             'cogs.automation',
             'cogs.owner'
