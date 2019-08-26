@@ -41,7 +41,7 @@ class Kireina(commands.Bot):
             await self.db.modlog.create_index('case_id', unique=True)
             await self.db.modlog.insert_one({'_id': 'current_case', 'value': 0})
 
-        print('Done!')
+        print('Done initializing database.')
 
 if __name__ == '__main__':
     # logging stuff

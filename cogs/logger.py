@@ -165,22 +165,6 @@ class Logger(commands.Cog):
                     if discord.utils.get(msg.author.roles, id=config.ROLE_STAFF) is None and msg.channel.id != config.CHAN_PROMOTIONS:
                         await msg.delete()
 
-    """
-    @commands.Cog.listener()
-    async def on_message_edit(self, before, after):
-        if before.author.bot:
-            return
-
-        chan = self.bot.get_channel(config.CHAN_EDITS_DELETES)
-        embed = discord.Embed()
-        embed.set_author(name=f'{before.author} edited a message', icon_url=before.author.avatar_url)
-        embed.set_thumbnail(url=before.author.avatar_url)
-        embed.add_field(name='Channel', value=before.channel.mention, inline=False)
-        embed.add_field(name='Before', value=before.content, inline=False)
-        embed.add_field(name='After', value=after.content, inline=False)
-        embed.timestamp = datetime.utcnow()
-        await chan.send(embed=embed)
-    """
 
     # gotta remember there's no payload.channel_id in this version
     @commands.Cog.listener()
