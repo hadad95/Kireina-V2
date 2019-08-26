@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import random
 import re
 import discord
@@ -36,9 +36,10 @@ class Logger(commands.Cog):
             case_id = await utils.get_next_case_id(self.bot.db)
             if mod.id == self.bot.user.id:
                 mod_cog = self.bot.get_cog('Mod')
-                if mod_cog.last_kick_ctx and mod_cog.last_kick_ctx.command.name == 'kick' and mod_cog.last_kick_ctx.args[2].id == member.id:
+                if mod_cog.last_kick_ctx  and mod_cog.last_kick_ctx.args[2].id == member.id:
                     member = mod_cog.last_kick_ctx.args[2]
                     mod = mod_cog.last_kick_ctx.author
+                    mod_cog.last_kick_ctx = None
 
             timestamp = datetime.utcnow()
             embed = utils.create_modlog_embed(utils.CaseType.KICK, case_id, member, mod, timestamp, reason if reason else 'None', None)
@@ -66,17 +67,65 @@ class Logger(commands.Cog):
             mod_cog = self.bot.get_cog('Mod')
             if mod_cog.last_ban_ctx:
                 if mod_cog.last_ban_ctx.command.name == 'ban' and mod_cog.last_ban_ctx.args[2].id == user.id:
+                    # potential redundant line
                     user = mod_cog.last_ban_ctx.args[2]
                     mod = mod_cog.last_ban_ctx.author
                 elif mod_cog.last_ban_ctx.command.name == 'hackban' and mod_cog.last_ban_ctx.args[2] == user.id:
+                    # potential redundant line
                     user = self.bot.get_user(mod_cog.last_ban_ctx.args[2])
                     mod = mod_cog.last_ban_ctx.author
+                    mod_cog.last_ban_ctx = None
 
         case_id = await utils.get_next_case_id(self.bot.db)
         timestamp = datetime.utcnow()
         embed = utils.create_modlog_embed(utils.CaseType.BAN, case_id, user, mod, timestamp, reason if reason else 'None', None)
         case_msg = await bans.send(embed=embed)
         await utils.create_db_case(self.bot.db, case_id, utils.CaseType.BAN, case_msg.id, user, mod, timestamp, reason, None)
+
+    @commands.Cog.listener()
+    async def on_member_update(self, before, after):
+        if before.bot:
+            return
+
+        before_muted = discord.utils.get(before.roles, id=config.ROLE_MUTED) is not None
+        after_muted = discord.utils.get(after.roles, id=config.ROLE_MUTED) is not None
+        entries = None
+        if before_muted is not after_muted:
+            entries = await before.guild.audit_logs(limit=1, action=discord.AuditLogAction.member_role_update).flatten()
+        else:
+            # this should change if we're gonna check anything else other than (un)mutes
+            return
+
+        mod_cog = self.bot.get_cog('Mod')
+        mod = entries[0].user
+        reason = entries[0].reason
+        chan = self.bot.get_channel(config.CHAN_MODLOG)
+        case_id = await utils.get_next_case_id(self.bot.db)
+        timestamp = datetime.utcnow()
+        unmute_at = None
+
+        if mod.id == self.bot.user.id:
+            mod_cog = self.bot.get_cog('Mod')
+            if mod_cog.last_mute_unmute_ctx is not None and mod_cog.last_mute_unmute_ctx.args[2].id == before.id:
+                mod = mod_cog.last_mute_unmute_ctx.author
+                mod_cog.last_mute_unmute_ctx = None
+
+        if not before_muted and after_muted:
+            # user got muted
+            time_added = utils.parse_timedelta(reason)
+            if time_added:
+                unmute_at = datetime.utcnow() + time_added
+                async with mod_cog.lock:
+                    mod_cog.mutes[before.id] = unmute_at
+
+            embed = utils.create_modlog_embed(utils.CaseType.MUTE, case_id, before, mod, timestamp, reason if reason else 'None', unmute_at)
+            case_msg = await chan.send(embed=embed)
+            await utils.create_db_case(self.bot.db, case_id, utils.CaseType.MUTE, case_msg.id, before, mod, timestamp, reason, unmute_at)
+        elif before_muted and not after_muted:
+            # user got unmuted
+            embed = utils.create_modlog_embed(utils.CaseType.UNMUTE, case_id, before, mod, timestamp, reason if reason else 'None', None)
+            case_msg = await chan.send(embed=embed)
+            await utils.create_db_case(self.bot.db, case_id, utils.CaseType.UNMUTE, case_msg.id, before, mod, timestamp, reason, None)
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
