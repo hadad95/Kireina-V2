@@ -27,6 +27,7 @@ def create_modlog_embed(case_type, case_id, member, moderator, timestamp, reason
         embed.set_author(name='Member kicked', icon_url=member.avatar_url)
         embed.colour = discord.Colour.gold()
     elif case_type == CaseType.BAN:
+        print(type(member))
         embed.set_author(name='Member banned', icon_url=member.avatar_url)
         embed.colour = discord.Colour.red()
 

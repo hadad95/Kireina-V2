@@ -103,7 +103,7 @@ class Mod(commands.Cog):
 
         chan = self.bot.get_channel(config.CHAN_MODLOG)
         msg = await chan.fetch_message(case['case_msg_id'])
-        member = self.bot.get_user(case['user_id'])
+        member = await self.bot.fetch_user(case['user_id'])
         unmute_at = None
         if case['case_type'] == utils.CaseType.MUTE.value:
             time_added = utils.parse_timedelta(reason)

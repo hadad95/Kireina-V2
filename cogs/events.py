@@ -68,11 +68,11 @@ class Logger(commands.Cog):
             if mod_cog.last_ban_ctx:
                 if mod_cog.last_ban_ctx.command.name == 'ban' and mod_cog.last_ban_ctx.args[2].id == user.id:
                     # potential redundant line
-                    user = mod_cog.last_ban_ctx.args[2]
+                    # user = mod_cog.last_ban_ctx.args[2]
                     mod = mod_cog.last_ban_ctx.author
                 elif mod_cog.last_ban_ctx.command.name == 'hackban' and mod_cog.last_ban_ctx.args[2] == user.id:
                     # potential redundant line
-                    user = self.bot.get_user(mod_cog.last_ban_ctx.args[2])
+                    # user = self.bot.get_user(mod_cog.last_ban_ctx.args[2])
                     mod = mod_cog.last_ban_ctx.author
                     mod_cog.last_ban_ctx = None
 
