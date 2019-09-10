@@ -14,7 +14,8 @@ class Kireina(commands.Bot):
             'cogs.mod',
             'cogs.automation',
             'cogs.owner',
-            'cogs.default'
+            'cogs.default',
+            'cogs.error_handler'
         ]
 
         for cog in cogs:
