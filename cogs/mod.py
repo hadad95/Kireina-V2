@@ -49,6 +49,7 @@ class Mod(commands.Cog):
     @commands.command()
     @commands.has_role(config.ROLE_STAFF)
     async def kick(self, ctx, user: discord.Member, *, reason=''):
+        """ Kick a member. """
         await user.kick(reason=reason)
         self.last_kick_ctx = ctx
         await ctx.send(f'Successfully kicked `{user}`!')
@@ -56,6 +57,7 @@ class Mod(commands.Cog):
     @commands.command()
     @commands.has_role(config.ROLE_STAFF)
     async def ban(self, ctx, user: discord.User, *, reason=''):
+        """ Ban a member. """
         await ctx.guild.ban(user, reason=reason)
         self.last_ban_ctx = ctx
         await ctx.send(f'Successfully banned `{user}`!')
@@ -63,6 +65,7 @@ class Mod(commands.Cog):
     @commands.has_role(config.ROLE_STAFF)
     @commands.command()
     async def hackban(self, ctx, user_id: int, *, reason=''):
+        """ Ban someone who is not in the server with their ID. """
         user = await self.bot.fetch_user(user_id)
         await ctx.guild.ban(user, reason=reason)
         self.last_ban_ctx = ctx
@@ -71,6 +74,9 @@ class Mod(commands.Cog):
     @commands.has_role(config.ROLE_STAFF)
     @commands.command()
     async def mute(self, ctx, member: discord.Member, *, reason=''):
+        """ Mute a member.
+        Do it in the format reason | time to add a timed mute.
+        For example: ;;mute @Kef a test mute | 1 min """
         if any(role.id == config.ROLE_MUTED for role in member.roles): #role.id == config.ROLE_MUTED:
             await ctx.send(f'`{member}` is already muted')
             return
@@ -82,6 +88,7 @@ class Mod(commands.Cog):
     @commands.has_role(config.ROLE_STAFF)
     @commands.command()
     async def unmute(self, ctx, member: discord.Member, *, reason=''):
+        """ Unmute a member. """
         if not any(config.ROLE_MUTED == role.id for role in member.roles):
             await ctx.send('That member is not muted you dumdum')
             return
@@ -96,6 +103,8 @@ class Mod(commands.Cog):
     @commands.has_role(config.ROLE_STAFF)
     @commands.command()
     async def reason(self, ctx, case_id: int, *, reason):
+        """ Add a reason to a modlog case.
+        For mutes you can add a timed mute by doing "reason | time" as the reason text """
         case = await utils.get_db_case(self.bot.db, case_id)
         if not case:
             await ctx.send(f'Case #{case_id} not found!')
@@ -125,6 +134,8 @@ class Mod(commands.Cog):
     @commands.has_role(config.ROLE_STAFF)
     @commands.command()
     async def clean(self, ctx, target: typing.Union[discord.Member, str], limit=200):
+        """ Clean messages.
+        Target can either be a member or the keyword 'bot'. """
         if limit > 2000:
             await ctx.send('The maximum limit is 2000 messages')
             return

@@ -13,7 +13,8 @@ class Kireina(commands.Bot):
             'cogs.events',
             'cogs.mod',
             'cogs.automation',
-            'cogs.owner'
+            'cogs.owner',
+            'cogs.default'
         ]
 
         for cog in cogs:

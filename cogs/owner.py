@@ -25,6 +25,12 @@ class Owner(commands.Cog):
 
     @commands.command(hidden=True)
     @commands.is_owner()
+    async def reload(self, ctx, cog):
+        self.bot.reload_extension(f'cogs.{cog}')
+        await ctx.send(f'Reloaded cog `{cog}`')
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
     async def eval(self, ctx, *, code):
         fn_name = "_eval_expr"
 
