@@ -178,7 +178,7 @@ class Logger(commands.Cog):
         content = payload.data.get('content')
         after = str(content)
         raw_author = payload.data.get('author')
-        author = self.bot.get_user(int(raw_author['id'])) if raw_author else None
+        author = await self.bot.fetch_user(int(raw_author['id'])) if raw_author else None
         channel = self.bot.get_channel(channel_id)
 
         chan = self.bot.get_channel(config.CHAN_EDITS_DELETES)
@@ -202,7 +202,7 @@ class Logger(commands.Cog):
         if not msg:
             return
 
-        author = self.bot.get_user(msg['author_id'])
+        author = await self.bot.fetch_user(msg['author_id'])
         channel = self.bot.get_channel(payload.channel_id)
         chan = self.bot.get_channel(config.CHAN_EDITS_DELETES)
         embed = discord.Embed()
