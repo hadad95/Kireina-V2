@@ -18,8 +18,9 @@ class Logger(commands.Cog):
         embed = discord.Embed()
         embed.set_author(name='Member joined', icon_url=member.avatar_url)
         embed.colour = discord.Colour.green()
-        embed.add_field(name='User', value=f'{member.mention} ({member})', inline=False)
+        embed.description = f'{member.mention} ({member})'
         embed.set_thumbnail(url=member.avatar_url)
+        embed.set_footer(text=f'ID: {member.id}')
         embed.timestamp = datetime.utcnow()
         chan = self.bot.get_channel(config.CHAN_JOINS_LEAVES)
         await chan.send(embed=embed)
@@ -52,8 +53,9 @@ class Logger(commands.Cog):
 
         embed2 = discord.Embed()
         embed2.set_author(name='Member left', icon_url=member.avatar_url)
-        embed2.add_field(name='User', value=f'{member.mention} ({member})', inline=False)
+        embed2.description = f'{member.mention} ({member})'
         embed2.set_thumbnail(url=member.avatar_url)
+        embed2.set_footer(text=f'ID: {member.id}')
         embed2.timestamp = datetime.utcnow()
         await leaves.send(embed=embed2)
 
