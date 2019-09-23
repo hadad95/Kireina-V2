@@ -178,6 +178,9 @@ class Logger(commands.Cog):
 
         before = msg['content'] if msg['content'] else 'None'
         content = payload.data.get('content')
+        if content is None:
+            return
+        
         after = str(content)
         #raw_author = payload.data.get('author')
         #author = await self.bot.fetch_user(int(raw_author['id'])) if raw_author else None
