@@ -179,8 +179,9 @@ class Logger(commands.Cog):
         before = msg['content'] if msg['content'] else 'None'
         content = payload.data.get('content')
         after = str(content)
-        raw_author = msg['author_id']#payload.data.get('author')
-        author = await self.bot.fetch_user(int(raw_author['id'])) if raw_author else None
+        #raw_author = payload.data.get('author')
+        #author = await self.bot.fetch_user(int(raw_author['id'])) if raw_author else None
+        author = await self.bot.fetch_user(msg['author_id'])
         channel = self.bot.get_channel(channel_id)
 
         chan = self.bot.get_channel(config.CHAN_EDITS_DELETES)
