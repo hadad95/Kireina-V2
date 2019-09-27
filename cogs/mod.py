@@ -58,8 +58,8 @@ class Mod(commands.Cog):
     @commands.has_role(config.ROLE_STAFF)
     async def ban(self, ctx, user: discord.User, *, reason=''):
         """ Ban a member. """
-        await ctx.guild.ban(user, reason=reason)
         self.last_ban_ctx = ctx
+        await ctx.guild.ban(user, reason=reason)
         await ctx.send(f'Successfully banned `{user}`!')
 
     @commands.has_role(config.ROLE_STAFF)
@@ -67,8 +67,8 @@ class Mod(commands.Cog):
     async def hackban(self, ctx, user_id: int, *, reason=''):
         """ Ban someone who is not in the server with their ID. """
         user = await self.bot.fetch_user(user_id)
-        await ctx.guild.ban(user, reason=reason)
         self.last_ban_ctx = ctx
+        await ctx.guild.ban(user, reason=reason)
         await ctx.send(f'Successfully banned `{user}`!')
 
     @commands.has_role(config.ROLE_STAFF)
