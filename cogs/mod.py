@@ -146,11 +146,14 @@ class Mod(commands.Cog):
                 return msg.author.id == target.id
 
             deleted = await ctx.channel.purge(limit=limit, check=is_member)
-        elif isinstance(target, str) and 'bot' in target.lower():
-            def is_bot(msg):
-                return msg.author.bot
+        elif isinstance(target, str):
+            if 'bot' in target.lower():
+                def is_bot(msg):
+                    return msg.author.bot
 
-            deleted = await ctx.channel.purge(limit=limit, check=is_bot)
+                deleted = await ctx.channel.purge(limit=limit, check=is_bot)
+            elif 'all' in target.lower():
+                deleted = await ctx.channel.purge(limit=limit)
 
         await ctx.send(f'Done! Deleted {len(deleted)} messages.', delete_after=5)
 
