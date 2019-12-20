@@ -133,7 +133,7 @@ class Mod(commands.Cog):
 
     @commands.has_role(config.ROLE_STAFF)
     @commands.command()
-    async def clean(self, ctx, target: typing.Union[discord.Member, str], limit=200):
+    async def clean(self, ctx, target: typing.Union[discord.User, str], limit=200):
         """ Clean messages.
         Target can either be a member or the keywords 'bot' and 'all'. """
         if limit > 2000:
@@ -141,7 +141,7 @@ class Mod(commands.Cog):
             return
 
         deleted = None
-        if isinstance(target, discord.Member):
+        if isinstance(target, discord.User):
             def is_member(msg):
                 return msg.author.id == target.id
 
