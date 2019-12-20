@@ -135,7 +135,7 @@ class Mod(commands.Cog):
     @commands.command()
     async def clean(self, ctx, target: typing.Union[discord.Member, str], limit=200):
         """ Clean messages.
-        Target can either be a member or the keyword 'bot'. """
+        Target can either be a member or the keywords 'bot' and 'all'. """
         if limit > 2000:
             await ctx.send('The maximum limit is 2000 messages')
             return
