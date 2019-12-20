@@ -129,6 +129,23 @@ class Logger(commands.Cog):
             embed = utils.create_modlog_embed(utils.CaseType.UNMUTE, case_id, before, mod, timestamp, reason if reason else 'None', None)
             case_msg = await chan.send(embed=embed)
             await utils.create_db_case(self.bot.db, case_id, utils.CaseType.UNMUTE, case_msg.id, before, mod, timestamp, reason, None)
+        
+        if len(before.roles) != len(after.roles):
+            case = 1 if len(before.roles) < len(after.roles) else 2 # 1 = role added, 2 = role removed
+            list_a = after.roles if case == 1 else before.role # list_a holds the bigger number of roles
+            list_b = after.role if case == 2 else before.role
+            role = None
+            for item in list_a:
+                if item not in list_b:
+                    role = item
+            
+            chan = self.bot.get_channel(config.CHAN_EDITS_DELETES)
+            embed = discord.Embed()
+            embed.set_author(name=str(before), icon_url=before.avatar_url)
+            embed.set_thumbnail(url=author.avatar_url)
+            embed.description = f'Role {"added" if case == 1 else "removed"}: {role.name}'
+            embed.timestamp = datetime.utcnow()
+            await chan.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
