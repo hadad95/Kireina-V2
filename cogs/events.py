@@ -128,8 +128,8 @@ class Logger(commands.Cog):
         
         if len(before.roles) != len(after.roles):
             case = 1 if len(before.roles) < len(after.roles) else 2 # 1 = role added, 2 = role removed
-            list_a = after.roles if case == 1 else before.role # list_a holds the bigger number of roles
-            list_b = after.role if case == 2 else before.role
+            list_a = after.roles if case == 1 else before.roles # list_a holds the bigger number of roles
+            list_b = after.roles if case == 2 else before.roles
             role = None
             for item in list_a:
                 if item not in list_b:
