@@ -95,40 +95,36 @@ class Logger(commands.Cog):
         entries = None
         if before_muted is not after_muted:
             entries = await before.guild.audit_logs(limit=1, action=discord.AuditLogAction.member_role_update).flatten()
-        else:
-            # this should change if we're gonna check anything else other than (un)mutes
-            return
-
-        mod_cog = self.bot.get_cog('Mod')
-        mod = entries[0].user
-        reason = entries[0].reason
-        chan = self.bot.get_channel(config.CHAN_MODLOG)
-        case_id = await utils.get_next_case_id(self.bot.db)
-        timestamp = datetime.utcnow()
-        unmute_at = None
-
-        if mod.id == self.bot.user.id:
             mod_cog = self.bot.get_cog('Mod')
-            if mod_cog.last_mute_unmute_ctx is not None and mod_cog.last_mute_unmute_ctx.args[2].id == before.id:
-                mod = mod_cog.last_mute_unmute_ctx.author
-                mod_cog.last_mute_unmute_ctx = None
+            mod = entries[0].user
+            reason = entries[0].reason
+            chan = self.bot.get_channel(config.CHAN_MODLOG)
+            case_id = await utils.get_next_case_id(self.bot.db)
+            timestamp = datetime.utcnow()
+            unmute_at = None
 
-        if not before_muted and after_muted:
-            # user got muted
-            time_added = utils.parse_timedelta(reason)
-            if time_added:
-                unmute_at = datetime.utcnow() + time_added
-                async with mod_cog.lock:
-                    mod_cog.mutes[before.id] = unmute_at
+            if mod.id == self.bot.user.id:
+                mod_cog = self.bot.get_cog('Mod')
+                if mod_cog.last_mute_unmute_ctx is not None and mod_cog.last_mute_unmute_ctx.args[2].id == before.id:
+                    mod = mod_cog.last_mute_unmute_ctx.author
+                    mod_cog.last_mute_unmute_ctx = None
 
-            embed = utils.create_modlog_embed(utils.CaseType.MUTE, case_id, before, mod, timestamp, reason if reason else 'None', unmute_at)
-            case_msg = await chan.send(embed=embed)
-            await utils.create_db_case(self.bot.db, case_id, utils.CaseType.MUTE, case_msg.id, before, mod, timestamp, reason, unmute_at)
-        elif before_muted and not after_muted:
-            # user got unmuted
-            embed = utils.create_modlog_embed(utils.CaseType.UNMUTE, case_id, before, mod, timestamp, reason if reason else 'None', None)
-            case_msg = await chan.send(embed=embed)
-            await utils.create_db_case(self.bot.db, case_id, utils.CaseType.UNMUTE, case_msg.id, before, mod, timestamp, reason, None)
+            if not before_muted and after_muted:
+                # user got muted
+                time_added = utils.parse_timedelta(reason)
+                if time_added:
+                    unmute_at = datetime.utcnow() + time_added
+                    async with mod_cog.lock:
+                        mod_cog.mutes[before.id] = unmute_at
+
+                embed = utils.create_modlog_embed(utils.CaseType.MUTE, case_id, before, mod, timestamp, reason if reason else 'None', unmute_at)
+                case_msg = await chan.send(embed=embed)
+                await utils.create_db_case(self.bot.db, case_id, utils.CaseType.MUTE, case_msg.id, before, mod, timestamp, reason, unmute_at)
+            elif before_muted and not after_muted:
+                # user got unmuted
+                embed = utils.create_modlog_embed(utils.CaseType.UNMUTE, case_id, before, mod, timestamp, reason if reason else 'None', None)
+                case_msg = await chan.send(embed=embed)
+                await utils.create_db_case(self.bot.db, case_id, utils.CaseType.UNMUTE, case_msg.id, before, mod, timestamp, reason, None)
         
         if len(before.roles) != len(after.roles):
             case = 1 if len(before.roles) < len(after.roles) else 2 # 1 = role added, 2 = role removed
