@@ -139,8 +139,9 @@ class Logger(commands.Cog):
             embed = discord.Embed()
             embed.set_author(name=str(before), icon_url=before.avatar_url)
             embed.set_thumbnail(url=before.avatar_url)
-            embed.description = f'Role {"added" if case == 1 else "removed"}: {role.name}'
+            embed.description = f'**{before.mention} was {"given" if case == 1 else "removed from"}: the `{role.name}` role'
             embed.timestamp = datetime.utcnow()
+            embed.set_footer(text=f'ID: {before.id}')
             await chan.send(embed=embed)
 
     @commands.Cog.listener()
