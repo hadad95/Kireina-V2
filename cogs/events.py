@@ -138,7 +138,7 @@ class Logger(commands.Cog):
             chan = self.bot.get_channel(config.CHAN_EDITS_DELETES)
             embed = discord.Embed()
             embed.set_author(name=str(before), icon_url=before.avatar_url)
-            embed.set_thumbnail(url=author.avatar_url)
+            embed.set_thumbnail(url=before.avatar_url)
             embed.description = f'Role {"added" if case == 1 else "removed"}: {role.name}'
             embed.timestamp = datetime.utcnow()
             await chan.send(embed=embed)
