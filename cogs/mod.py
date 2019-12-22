@@ -46,7 +46,7 @@ class Mod(commands.Cog):
         for result in results:
             self.mutes[result['user_id']] = result['unmute_at']
 
-    @commands.command()
+    @commands.command(aliases=['k'])
     @commands.has_role(config.ROLE_STAFF)
     async def kick(self, ctx, user: discord.Member, *, reason=''):
         """ Kick a member. """
@@ -54,7 +54,7 @@ class Mod(commands.Cog):
         self.last_kick_ctx = ctx
         await ctx.send(f'Successfully kicked `{user}`!')
 
-    @commands.command()
+    @commands.command(aliases=['b'])
     @commands.has_role(config.ROLE_STAFF)
     async def ban(self, ctx, user: discord.User, *, reason=''):
         """ Ban a member. """
@@ -72,7 +72,7 @@ class Mod(commands.Cog):
         await ctx.send(f'Successfully banned `{user}`!')
 
     @commands.has_role(config.ROLE_STAFF)
-    @commands.command()
+    @commands.command(aliases=['m'])
     async def mute(self, ctx, member: discord.Member, *, reason=''):
         """ Mute a member.
         Do it in the format reason | time to add a timed mute.
@@ -86,7 +86,7 @@ class Mod(commands.Cog):
         await ctx.send(f'Muted `{member}` successfully!')
 
     @commands.has_role(config.ROLE_STAFF)
-    @commands.command()
+    @commands.command(aliases=['u'])
     async def unmute(self, ctx, member: discord.Member, *, reason=''):
         """ Unmute a member. """
         if not any(config.ROLE_MUTED == role.id for role in member.roles):
@@ -101,7 +101,7 @@ class Mod(commands.Cog):
         await ctx.send(f'Unmuted `{member}` successfully!')
 
     @commands.has_role(config.ROLE_STAFF)
-    @commands.command()
+    @commands.command(aliases=['r'])
     async def reason(self, ctx, case_id: int, *, reason):
         """ Add a reason to a modlog case.
         For mutes you can add a timed mute by doing "reason | time" as the reason text """
