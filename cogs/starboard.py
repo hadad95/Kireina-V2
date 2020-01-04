@@ -45,7 +45,7 @@ class Starboard(commands.Cog):
             if count < MIN_REACTIONS:
                 return
             
-            entry = self.bot.db.starboard.find_one({'channel_id': payload.channel_id, 'starred_message_id': msg.id})
+            entry = await self.bot.db.starboard.find_one({'channel_id': payload.channel_id, 'starred_message_id': msg.id})
             if not entry:
                 print("Creating embed")
                 embed = discord.Embed()
