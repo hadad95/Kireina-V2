@@ -29,7 +29,7 @@ class Starboard(commands.Cog):
         embed.description = msg.content
         if msg.attachments:
             file = msg.attachments[0]
-            if file.url.lower().endswwith(('png', 'jpeg', 'jpg', 'gif', 'webp')):
+            if file.url.lower().endswith(('png', 'jpeg', 'jpg', 'gif', 'webp')):
                 embed.set_image(url=file.url)
             else:
                 embed.add_field(name='Attachment', value=f'[{file.filename}]({file.url})', inline=False)
