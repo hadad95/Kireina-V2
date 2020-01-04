@@ -33,7 +33,7 @@ class Starboard(commands.Cog):
         
         embed.add_field(name='Jump to message', value=f'[Jump](https://discordapp.com/channels/{msg.guild.id}/{msg.channel.id}/{msg.id})', inline=False)
         print("Sending message")
-        star_msg = await self.bot.get_channel(config.CHAN_STARBOARD).send(f'{STAR} {count} {msg.channel.mention}'. embed=embed)
+        star_msg = await self.bot.get_channel(config.CHAN_STARBOARD).send(f'{STAR} {count} {msg.channel.mention}', embed=embed)
         await self.bot.db.starboard.insert_one({
             'channel_id': channel_id,
             'message_id': msg.id,
