@@ -78,7 +78,7 @@ class Starboard(commands.Cog):
             
             entry = await self.bot.db.starboard.find_one({'channel_id': payload.channel_id, 'message_id': msg.id})
             if not entry:
-                self.add_entry(payload.channel_id, msg, count)
+                await self.add_entry(payload.channel_id, msg, count)
                 
         elif action == 'remove':
             print('Entered "remove"')
