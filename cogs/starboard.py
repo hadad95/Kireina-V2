@@ -36,7 +36,7 @@ class Starboard(commands.Cog):
         
         reaction = discord.utils.find(lambda e: str(e) == STAR, msg.reactions)
         count = reaction.count
-        owner_reacted = discord.utils.get(await reaction.users().flatten(), id=payload.user_id)
+        owner_reacted = discord.utils.get(await reaction.users().flatten(), id=msg.author.id)
         if owner_reacted:
             count -= 1
 
