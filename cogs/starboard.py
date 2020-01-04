@@ -52,7 +52,7 @@ class Starboard(commands.Cog):
                 embed.set_author(name=str(msg.author), icon_url=msg.author.avatar_url)
                 embed.set_footer(text=f'ID: {msg.id}')
                 embed.timestamp = msg.created_at
-                embed.content = msg.content
+                embed.description = msg.content
                 if msg.attachments:
                     file = msg.attachments[0]
                     if file.url.lower().endswwith(('png', 'jpeg', 'jpg', 'gif', 'webp')):
