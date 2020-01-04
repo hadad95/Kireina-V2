@@ -24,7 +24,7 @@ class Starboard(commands.Cog):
         pass
 
     async def reaction_action(self, action, payload):
-        if str(payload.emoji) != EMOJI:
+        if str(payload.emoji) != STAR:
             return
         
         channel = self.bot.get_channel(payload.channel_id)
