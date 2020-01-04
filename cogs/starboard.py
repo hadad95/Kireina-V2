@@ -17,7 +17,7 @@ class Starboard(commands.Cog):
     async def on_raw_reaction_remove(self, payload):
         await self.reaction_action('remove', payload)
 
-    async def add_entry(self, channel_id, msg, count):
+    async def add_entry(self, msg, count):
         print("Creating embed")
         embed = discord.Embed()
         embed.set_author(name=str(msg.author), icon_url=msg.author.avatar_url)
@@ -35,19 +35,19 @@ class Starboard(commands.Cog):
         print("Sending message")
         star_msg = await self.bot.get_channel(config.CHAN_STARBOARD).send(f'{STAR} {count} {msg.channel.mention}', embed=embed)
         await self.bot.db.starboard.insert_one({
-            'channel_id': channel_id,
+            'channel_id': msg.channel.id,
             'message_id': msg.id,
             'author_id': msg.author.id,
             'star_message_id': star_msg.id
         })
 
-    async def remove_entry(self, channel_id, msg, star_message_id):
-        await self.bot.db.starboard.delete_one({'channel_id': channel_id, 'message_id': msg.id, 'star_message_id': star_message_id})
+    async def remove_entry(self, msg, star_message_id):
+        await self.bot.db.starboard.delete_one({'channel_id': msg.channel.id, 'message_id': msg.id, 'star_message_id': star_message_id})
         o = discord.Object(id=star_message_id + 1)
         star_msg = await self.bot.get_channel(config.CHAN_STARBOARD).history(limit=1, before=o).next()
         await star_msg.delete()
     
-    async def update_entry(self, msg, count):
+    async def update_entry(self, msg, count, star_message_id):
         o = discord.Object(id=star_message_id + 1)
         star_msg = await self.bot.get_channel(config.CHAN_STARBOARD).history(limit=1, before=o).next()
         await star_msg.edit(content=f'{STAR} {count} {msg.channel.mention}')
@@ -78,7 +78,7 @@ class Starboard(commands.Cog):
             
             entry = await self.bot.db.starboard.find_one({'channel_id': payload.channel_id, 'message_id': msg.id})
             if not entry:
-                await self.add_entry(payload.channel_id, msg, count)
+                await self.add_entry(msg, count)
             else:
                 await self.update_entry(msg, count)
                 
@@ -86,12 +86,12 @@ class Starboard(commands.Cog):
             print('Entered "remove"')
             entry = await self.bot.db.starboard.find_one({'channel_id': payload.channel_id, 'message_id': msg.id})
             if not entry and count >= MIN_REACTIONS:
-                await self.add_entry(payload.channel_id, msg, count)
+                await self.add_entry(msg, count)
             elif entry:
                 if count < MIN_REACTIONS:
-                    await self.remove_entry(payload.channel_id, msg, entry['star_message_id'])
+                    await self.remove_entry(msg, entry['star_message_id'])
                 else:
-                    await self.update_entry(msg, count)
+                    await self.update_entry(msg, count, entry['star_message_id'])
 
 def setup(bot):
     bot.add_cog(Starboard(bot))
