@@ -80,7 +80,7 @@ class Starboard(commands.Cog):
             if not entry:
                 await self.add_entry(msg, count)
             else:
-                await self.update_entry(msg, count)
+                await self.update_entry(msg, count, entry['star_message_id'])
                 
         elif action == 'remove':
             print('Entered "remove"')
