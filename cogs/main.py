@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands, tasks
 import config
 
-class Default(commands.Cog):
+class Main(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -22,4 +22,4 @@ class Default(commands.Cog):
             await ctx.send(emoji)
 
 def setup(bot):
-    bot.add_cog(Default(bot))
+    bot.add_cog(Main(bot))
