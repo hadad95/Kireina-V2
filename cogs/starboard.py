@@ -45,7 +45,7 @@ class Starboard(commands.Cog):
         })
 
     async def remove_entry(self, channel_id, msg, star_message_id):
-        await self.bot.db.starboard.delete_one({'channel_id': channel_id, 'message_id', 'star_message_id': star_message_id})
+        await self.bot.db.starboard.delete_one({'channel_id': channel_id, 'message_id': msg.id, 'star_message_id': star_message_id})
         o = discord.Object(id=star_message_id + 1)
         star_msg = await self.bot.get_channel(config.CHAN_STARBOARD).history(limit=1, before=o).next()
         await star_msg.delete()
