@@ -62,14 +62,12 @@ class Starboard(commands.Cog):
         msg = await channel.history(limit=1, before=o).next()
         
         reaction = discord.utils.find(lambda e: str(e) == STAR, msg.reactions)
-        if not reaction:
-            print('No reactions')
-            return
-        
-        count = reaction.count # TODO: when all reactions are removed the reaction object is None
-        owner_reacted = discord.utils.get(await reaction.users().flatten(), id=msg.author.id)
-        if owner_reacted:
-            count -= 1
+        count = 0
+        if reaction:
+            count = reaction.count
+            owner_reacted = discord.utils.get(await reaction.users().flatten(), id=msg.author.id)
+            if owner_reacted:
+                count -= 1
 
         if action == 'add':
             print('Entered "add"')
