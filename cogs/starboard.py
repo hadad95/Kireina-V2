@@ -3,7 +3,7 @@ from discord.ext import commands
 import config
 
 STAR = '\u2b50'    # The star emoji
-MIN_REACTIONS = 1
+MIN_REACTIONS = 3
 
 class Starboard(commands.Cog):
     def __init__(self, bot):
