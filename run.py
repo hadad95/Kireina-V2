@@ -15,7 +15,8 @@ class Kireina(commands.Bot):
             'cogs.triggers',
             'cogs.owner',
             'cogs.main',
-            'cogs.error_handler'
+            'cogs.error_handler',
+            'cogs.starboard'
         ]
 
         for cog in cogs:
