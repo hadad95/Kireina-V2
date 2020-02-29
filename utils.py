@@ -32,6 +32,7 @@ def create_modlog_embed(case_type, case_id, member, moderator, timestamp, reason
 
     embed.add_field(name='User', value=f'{member.mention} ({str(member)})', inline=False)
     embed.add_field(name='Moderator', value=str(moderator), inline=False)
+    embed.add_field(name='User ID', value=str(member.id), inline=False)
     embed.add_field(name='Reason', value=reason if reason else 'None', inline=False)
     embed.set_thumbnail(url=member.avatar_url)
     if unmute_at:
