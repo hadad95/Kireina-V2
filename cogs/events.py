@@ -190,6 +190,9 @@ class Logger(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_message_edit(self, payload):
         channel_id = int(payload.data['channel_id'])
+        if channel_id in config.BLACKLISTED_CHANS:
+            return
+
         msg = await self.bot.db.messages.find_one({'msg_id': payload.message_id, 'channel_id': channel_id})
         if not msg:
             return
@@ -222,6 +225,9 @@ class Logger(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_message_delete(self, payload):
+        if payload.channel_id in config.BLACKLISTED_CHANS:
+            return
+        
         msg = await self.bot.db.messages.find_one({'msg_id': payload.message_id, 'channel_id': payload.channel_id})
         if not msg:
             return
