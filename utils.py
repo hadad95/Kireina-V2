@@ -30,7 +30,7 @@ def create_modlog_embed(case_type, case_id, member, moderator, timestamp, reason
         embed.set_author(name='Member banned', icon_url=member.avatar_url)
         embed.colour = discord.Colour.red()
 
-    embed.add_field(name='User', value=str(member), inline=False)
+    embed.add_field(name='User', value=f'{member.mention} ({str(member)})', inline=False)
     embed.add_field(name='Moderator', value=str(moderator), inline=False)
     embed.add_field(name='Reason', value=reason if reason else 'None', inline=False)
     embed.set_thumbnail(url=member.avatar_url)
