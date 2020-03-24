@@ -26,6 +26,14 @@ class Logger(commands.Cog):
         chan = self.bot.get_channel(config.CHAN_JOINS_LEAVES)
         await chan.send(embed=embed)
 
+        """Add roles from db"""
+        roles = utils.get_db_roles(self.bot.db, member.id)
+        for role in roles:
+            try:
+                await member.add_roles(discord.Object(id=role))
+            except:
+                pass
+
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         await asyncio.sleep(0.5) # Added a delay because audit logs seem to be fucked sometimes
