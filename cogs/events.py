@@ -28,11 +28,14 @@ class Logger(commands.Cog):
 
         """Add roles from db"""
         roles = await utils.get_db_roles(self.bot.db, member.id)
-        for role in roles:
-            try:
-                await member.add_roles(discord.Object(id=role))
-            except:
-                pass
+        if not roles:
+            return
+        
+        roles = [discord.Object(id=x) for x in roles]
+        try:
+            await member.add_roles(roles)
+        except:
+            pass
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):

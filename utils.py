@@ -92,7 +92,11 @@ async def update_db_roles(db, user_id, roles_ids):
     await db.roles.update_one({'user_id': user_id}, {'$set': {'roles': roles_ids}}, upsert=True)
 
 async def get_db_roles(db, user_id):
-    return (await db.roles.find_one({'user_id': user_id}))['roles']
+    result = await db.roles.find_one({'user_id': user_id});
+    if result:
+        return result['roles']
+    else:
+        return None;
 
 def parse_timedelta(reason):
     if not reason:
