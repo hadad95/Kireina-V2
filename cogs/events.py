@@ -149,7 +149,7 @@ class Logger(commands.Cog):
 
             """Update user roles in db"""
 
-            await utils.update_db_roles(self.bot.db, after.id, [x.id for x in after.roles where x.name != '@everyone'])
+            await utils.update_db_roles(self.bot.db, after.id, [x.id for x in after.roles if x.name != '@everyone'])
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
