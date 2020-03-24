@@ -147,6 +147,10 @@ class Logger(commands.Cog):
             embed.set_footer(text=f'ID: {before.id}')
             await chan.send(embed=embed)
 
+            """Update user roles in db"""
+
+            utils.update_db_roles(self.bot.db, after.id, [x.id for x in after.roles where x.name != '@everyone'])
+
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         if member.bot:

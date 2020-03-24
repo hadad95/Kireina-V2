@@ -88,6 +88,12 @@ async def get_all_db_mutes(db):
 async def remove_db_mute(db, user_id):
     await db.mutes.delete_many({'user_id': user_id})
 
+async def update_db_roles(db, user_id, roles_ids):
+    await db.roles.update_one({'user_id': user_id}, {'$set': {'roles': roles_ids}}, upsert=True)
+
+async def get_db_roles(db, user_id):
+    pass
+
 def parse_timedelta(reason):
     if not reason:
         return None
