@@ -27,7 +27,7 @@ class Logger(commands.Cog):
         await chan.send(embed=embed)
 
         """Add roles from db"""
-        roles = utils.get_db_roles(self.bot.db, member.id)
+        roles = await utils.get_db_roles(self.bot.db, member.id)
         for role in roles:
             try:
                 await member.add_roles(discord.Object(id=role))
