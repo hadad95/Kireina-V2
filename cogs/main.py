@@ -11,7 +11,7 @@ class Main(commands.Cog):
     async def hrt(self, ctx, size='smol'):
         """ Send a random hrt emote.
         Size can be 'smol' or 'big'. Default is smol uwu. """
-        
+
         emoji = random.choice(ctx.guild.emojis)
         if size.lower() == 'big':
             embed = discord.Embed()
@@ -24,7 +24,7 @@ class Main(commands.Cog):
 
     @commands.command(aliases=['av'])
     async def avatar(self, ctx, member: discord.Member=None):
-        """ Display someone's avatar """
+        """ Display someone's avatar. Pass no arguments to display yours """
 
         url = None
         name = None
