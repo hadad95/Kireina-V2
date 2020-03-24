@@ -22,7 +22,7 @@ class Main(commands.Cog):
             await ctx.send(emoji)
 
     @commands.command(aliases=['av'])
-    async def avatar(self, ctx, member=None):
+    async def avatar(self, ctx, member: discord.Member=None):
         url = None
         name = None
         if member:
