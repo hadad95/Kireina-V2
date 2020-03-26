@@ -56,18 +56,12 @@ class Mod(commands.Cog):
 
     @commands.command(aliases=['b'])
     @commands.has_role(config.ROLE_STAFF)
-    async def ban(self, ctx, user: discord.User, *, reason=''):
+    async def ban(self, ctx, user: typing.Union[discord.User, int], *, reason=''):
         """ Ban a member. """
         self.last_ban_ctx = ctx
-        await ctx.guild.ban(user, reason=reason)
-        await ctx.send(f'Successfully banned `{user}`!')
+        if isinstance(user, int):
+            user = discord.Object(id=user)
 
-    @commands.has_role(config.ROLE_STAFF)
-    @commands.command()
-    async def hackban(self, ctx, user_id: int, *, reason=''):
-        """ Ban someone who is not in the server with their ID. """
-        user = await self.bot.fetch_user(user_id)
-        self.last_ban_ctx = ctx
         await ctx.guild.ban(user, reason=reason)
         await ctx.send(f'Successfully banned `{user}`!')
 
