@@ -60,7 +60,7 @@ class Mod(commands.Cog):
         """ Ban a member. """
         self.last_ban_ctx = ctx
         if isinstance(user, int):
-            user = discord.Object(id=user)
+            user = await self.bot.fetch_user(user)
 
         await ctx.guild.ban(user, reason=reason)
         await ctx.send(f'Successfully banned `{user}`!')
