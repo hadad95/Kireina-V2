@@ -82,7 +82,10 @@ class Logger(commands.Cog):
         if mod.id == self.bot.user.id:
             mod_cog = self.bot.get_cog('Mod')
             if mod_cog.last_ban_ctx:
-                if mod_cog.last_ban_ctx.command.name == 'ban' and mod_cog.last_ban_ctx.args[2].id == user.id:
+                mod = mod_cog.last_ban_ctx.author
+                mod_cog.last_ban_ctx = None
+                """
+                if mod_cog.last_ban_ctx.command.name == 'ban' and isinstance(mod_cog.last_ban_ctx.args[2], discord.User) and mod_cog.last_ban_ctx.args[2].id == user.id:
                     # potential redundant line
                     # user = mod_cog.last_ban_ctx.args[2]
                     mod = mod_cog.last_ban_ctx.author
@@ -92,6 +95,7 @@ class Logger(commands.Cog):
                     # user = self.bot.get_user(mod_cog.last_ban_ctx.args[2])
                     mod = mod_cog.last_ban_ctx.author
                     mod_cog.last_ban_ctx = None
+                """
 
         case_id = await utils.get_next_case_id(self.bot.db)
         timestamp = datetime.utcnow()
