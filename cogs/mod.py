@@ -56,7 +56,7 @@ class Mod(commands.Cog):
 
     @commands.command(aliases=['b'])
     @commands.has_role(config.ROLE_STAFF)
-    async def ban(self, ctx, user: typing.Union[discord.User, int], *, reason=''):
+    async def ban(self, ctx, user: typing.Union[int, discord.User], *, reason=''):
         """ Ban a member. """
         self.last_ban_ctx = ctx
         if isinstance(user, int):
