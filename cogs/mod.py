@@ -46,6 +46,35 @@ class Mod(commands.Cog):
         for result in results:
             self.mutes[result['user_id']] = result['unmute_at']
 
+    def diff_time_calc(self, time):
+        now = datetime.utcnow()
+        delta = now - time
+        hours, remainder = divmod(int(delta.total_seconds()), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        days, hours = divmod(hours, 24)
+
+        fmt = '{h} hours, {m} minutes, {s} seconds'
+        if days:  # why show days if there are none :hmm:
+            fmt = '{d} days, ' + fmt
+
+        return fmt.format(d=days, h=hours, m=minutes, s=seconds)
+
+    @commands.command()
+    @commands.has_role(config.ROLE_STAFF)
+    async def newusers(self, ctx):
+        """Shows information about latest joined users."""
+
+        members = sorted(ctx.guild.members, key=lambda m: m.joined_at, reverse=True)[:5]
+
+        embed = discord.Embed(title='New Members', color=ctx.me.color)
+
+        for member in members:
+            field = f'Joined: {self.diff_time_calc(member.joined_at)}\n' \
+                    f'Created: {self.diff_time_calc(member.created_at)}'
+            embed.add_field(name=f'{member} ({member.id})', value=field, inline=False)
+
+        await ctx.send(embed=embed)
+
     @commands.command(aliases=['k'])
     @commands.has_role(config.ROLE_STAFF)
     async def kick(self, ctx, user: discord.Member, *, reason=''):
