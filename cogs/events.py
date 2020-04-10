@@ -46,6 +46,7 @@ class Logger(commands.Cog):
         entries = await member.guild.audit_logs(limit=1, action=discord.AuditLogAction.kick).flatten()
         # member got kicked
         if len(entries) == 1 and entries[0].target.id == member.id and (datetime.utcnow() - entries[0].created_at).total_seconds() <= 2:
+            await asyncio.sleep(2)
             mod = entries[0].user
             reason = entries[0].reason
             case_id = await utils.get_next_case_id(self.bot.db)
@@ -75,7 +76,7 @@ class Logger(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild, user):
-        await asyncio.sleep(0.5) # Added a delay because audit logs seem to be fucked sometimes
+        await asyncio.sleep(2) # Added a delay because audit logs seem to be fucked sometimes
         bans = self.bot.get_channel(config.CHAN_MODLOG)
         entries = await guild.audit_logs(limit=1, action=discord.AuditLogAction.ban).flatten()
         mod = entries[0].user
@@ -113,6 +114,7 @@ class Logger(commands.Cog):
         after_muted = discord.utils.get(after.roles, id=config.ROLE_MUTED) is not None
         entries = None
         if before_muted is not after_muted:
+            await asyncio.sleep(2)
             entries = await before.guild.audit_logs(limit=1, action=discord.AuditLogAction.member_role_update).flatten()
             mod_cog = self.bot.get_cog('Mod')
             mod = entries[0].user
