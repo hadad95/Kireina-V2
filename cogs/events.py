@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import asyncio
 import random
 import re
+import io
 import discord
 from discord.ext import commands
 import config
@@ -255,13 +256,32 @@ class Logger(commands.Cog):
         channel = self.bot.get_channel(payload.channel_id)
         chan = self.bot.get_channel(config.CHAN_EDITS_DELETES)
         embed = discord.Embed()
-        embed.set_author(name=f'{author} deleted a message', icon_url=author.avatar_url)
+        embed.set_author(name=f'Message deleted', icon_url=author.avatar_url)
         embed.set_thumbnail(url=author.avatar_url)
+        embed.add_field(name='Author', value=f'{author.mention} ({author})', inline=False)
         embed.add_field(name='Channel', value=channel.mention, inline=False)
         embed.add_field(name='Content', value=msg['content'] if msg['content'] else 'None', inline=False)
+        embed.set_footer(text=f'Author ID: {author.id}')
         embed.timestamp = datetime.utcnow()
         await chan.send(embed=embed)
         await self.bot.db.messages.delete_many({'msg_id': payload.message_id, 'channel_id': payload.channel_id})
+
+    @commands.Cog.listener()
+    async def on_raw_bulk_message_delete(self, payload):
+        msg_ids = sorted(payload.message_ids)
+        messages = await self.bot.db.messages.find({'msg_id': {'$in': msg_ids}}).to_list(len(msg_ids))
+        channel = self.bot.get_channel(payload.channel_id)
+        chan = self.bot.get_channel(config.CHAN_EDITS_DELETES)
+        result = ''
+        for msg in messages:
+            author = self.bot.get_user(msg['author_id'])
+            if not author:
+                author = await self.bot.fetch_user(msg['author_id'])
+
+            result += f'{author} ({author.id})\n{msg["content"]}\n\n'
+
+        await chan.send(f'Bulk-delete messages from {channel.mention}', file=discord.File(io.StringIO(result), filename='Bulklogs.txt'))
+
 
 
 def setup(bot):
