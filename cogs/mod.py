@@ -61,6 +61,22 @@ class Mod(commands.Cog):
 
     @commands.command()
     @commands.has_role(config.ROLE_STAFF)
+    async def userinfo(self, ctx, member: discord.Member):
+        embed = discord.Embed()
+        embed.set_author(name=f'{member.name}#{member.discriminator}', icon_url=member.avatar_url)
+        embed.set_thumbnail(url=member.avatar_url)
+        embed.colour = discord.Colour.blue()
+        embed.add_field(name='Created at', value=member.created_at.strftime('%b %d %Y %H:%M') + ' UTC', inline=False)
+        embed.add_field(name='Joined at', value=member.joined_at.strftime('%b %d %Y %H:%M') + ' UTC', inline=False)
+        embed.add_field(name='Nickname', value=member.nick if member.nick else 'N/A', inline=False)
+        embed.add_field(name='Server booster?', value=f'Yes, since {member.premium_since.strftime("%b %d %Y %H:%M")} UTC' if member.premium_since else 'No', inline=False)
+        embed.add_field(name='Status', value=str(member.status), inline=False)
+        embed.add_field(name='Roles', value=', '.join(x.name for x in member.roles), inline=False)
+        await ctx.send(embed=embed)
+
+
+    @commands.command()
+    @commands.has_role(config.ROLE_STAFF)
     async def newusers(self, ctx):
         """Shows information about latest joined users."""
 
