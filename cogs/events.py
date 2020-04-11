@@ -271,7 +271,7 @@ class Logger(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_bulk_message_delete(self, payload):
         msg_ids = sorted(payload.message_ids)
-        messages = await self.bot.db.messages.find({'msg_id': {'$in': msg_ids}}).to_list(len(msg_ids))
+        messages = await self.bot.db.messages.find({'msg_id': {'$in': msg_ids}, 'channel_id':payload.channel_id}).to_list(len(msg_ids))
         channel = self.bot.get_channel(payload.channel_id)
         chan = self.bot.get_channel(config.CHAN_EDITS_DELETES)
         result = ''
@@ -283,6 +283,7 @@ class Logger(commands.Cog):
             result += f'{author} ({author.id})\n{msg["content"]}\n\n'
 
         await chan.send(f'Bulk-delete messages from {channel.mention}', file=discord.File(io.StringIO(result), filename='Bulklogs.txt'))
+        await self.bot.db.messages.delete_many({'msg_id': {'$in': msg_ids}, 'channel_id':payload.channel_id})
 
 
 
