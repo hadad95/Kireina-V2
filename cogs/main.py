@@ -2,6 +2,7 @@ import random
 import discord
 from discord.ext import commands, tasks
 import config
+import time
 
 class Main(commands.Cog):
     def __init__(self, bot):
