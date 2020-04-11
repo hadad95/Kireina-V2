@@ -41,5 +41,15 @@ class Main(commands.Cog):
         embed.set_image(url=url)
         await ctx.send(embed=embed)
 
+    @commands.command()
+    async def ping(self, ctx):
+        """ Pong! """
+
+        before_ws = int(round(self.bot.latency * 1000, 1))
+        before = time.monotonic()
+        message = await ctx.send(":ping_pong: Pong")
+        ping = (time.monotonic() - before) * 1000
+        await message.edit(content=f":ping_pong: WS: {before_ws}ms  |  REST: {int(ping)}ms")
+
 def setup(bot):
     bot.add_cog(Main(bot))
