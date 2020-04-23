@@ -205,6 +205,16 @@ class Logger(commands.Cog):
             for match in matches:
                 if not any(match == inv.code for inv in guild_invites):
                     if discord.utils.get(msg.author.roles, id=config.ROLE_STAFF) is None and msg.channel.id != config.CHAN_PROMOTIONS:
+                        embed = discord.Embed()
+                        embed.title = 'Flagged message'
+                        embed.set_thumbnail(url=msg.author.avatar_url)
+                        embed.add_field(name='Member', value=f'{msg.author.mention} ({msg.author})', inline=False)
+                        embed.add_field(name='Channel', value=msg.channel.mention, inline=False)
+                        embed.add_field(name='Message', value=msg.content, inline=False)
+                        embed.timestamp = datetime.utcnow()
+                        embed.set_footer(text=f'Author ID: {msg.author.id}')
+                        channel = self.bot.get_channel(config.CHAN_FLAGGED_MSGS)
+                        await channel.send(embed=embed)
                         await msg.delete()
 
 
