@@ -206,6 +206,7 @@ class Logger(commands.Cog):
                 if not any(match == inv.code for inv in guild_invites):
                     if discord.utils.get(msg.author.roles, id=config.ROLE_STAFF) is None and msg.channel.id != config.CHAN_PROMOTIONS:
                         embed = discord.Embed()
+                        embed.colour = discord.Colour.red()
                         embed.title = 'Flagged message'
                         embed.set_thumbnail(url=msg.author.avatar_url)
                         embed.add_field(name='Member', value=f'{msg.author.mention} ({msg.author})', inline=False)
