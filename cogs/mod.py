@@ -188,7 +188,7 @@ class Mod(commands.Cog):
         elif isinstance(target, str):
             if 'bot' in target.lower():
                 def is_bot(msg):
-                    return msg.author.bot
+                    return msg.author.bot or msg.content.startswith(';;')
 
                 deleted = await ctx.channel.purge(limit=limit, check=is_bot)
             elif 'all' in target.lower():
