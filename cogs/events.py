@@ -12,6 +12,8 @@ class Logger(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.regex_inv = re.compile(r'discord(?:app\.com\/invite|\.gg)\/([a-z0-9]{1,16})', re.IGNORECASE)
+        with open('filtered_words.txt', 'r') as file:
+            self.filtered_words = file.read().split('\n')
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
@@ -190,6 +192,20 @@ class Logger(commands.Cog):
             #await chan.send(f'{member.display_name} left {before.channel.name}')
 
         await chan.send(embed=embed)
+    
+    async def submit_filtered_message(self, msg):
+        embed = discord.Embed()
+        embed.colour = discord.Colour.red()
+        embed.title = 'Flagged message'
+        embed.set_thumbnail(url=msg.author.avatar_url)
+        embed.add_field(name='Member', value=f'{msg.author.mention} ({msg.author})', inline=False)
+        embed.add_field(name='Channel', value=msg.channel.mention, inline=False)
+        embed.add_field(name='Message', value=msg.content, inline=False)
+        embed.timestamp = datetime.utcnow()
+        embed.set_footer(text=f'Author ID: {msg.author.id}')
+        channel = self.bot.get_channel(config.CHAN_FLAGGED_MSGS)
+        await channel.send(embed=embed)
+        await msg.delete()
 
     @commands.Cog.listener()
     async def on_message(self, msg):
@@ -205,18 +221,13 @@ class Logger(commands.Cog):
             for match in matches:
                 if not any(match == inv.code for inv in guild_invites):
                     if discord.utils.get(msg.author.roles, id=config.ROLE_STAFF) is None and msg.channel.id != config.CHAN_PROMOTIONS:
-                        embed = discord.Embed()
-                        embed.colour = discord.Colour.red()
-                        embed.title = 'Flagged message'
-                        embed.set_thumbnail(url=msg.author.avatar_url)
-                        embed.add_field(name='Member', value=f'{msg.author.mention} ({msg.author})', inline=False)
-                        embed.add_field(name='Channel', value=msg.channel.mention, inline=False)
-                        embed.add_field(name='Message', value=msg.content, inline=False)
-                        embed.timestamp = datetime.utcnow()
-                        embed.set_footer(text=f'Author ID: {msg.author.id}')
-                        channel = self.bot.get_channel(config.CHAN_FLAGGED_MSGS)
-                        await channel.send(embed=embed)
-                        await msg.delete()
+                        await self.submit_filtered_message(msg)
+        
+        # check for filtered words
+        content = msg.content.lower()
+        for word in self.filtered_words:
+            if word.lower() in content:
+                await self.submit_filtered_message(msg)
 
 
     # gotta remember there's no payload.channel_id in this version
