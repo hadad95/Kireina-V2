@@ -42,7 +42,7 @@ class Logger(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        await asyncio.sleep(0.5) # Added a delay because audit logs seem to be fucked sometimes
+        await asyncio.sleep(2) # Added a delay because audit logs seem to be fucked sometimes
         kicks = self.bot.get_channel(config.CHAN_MODLOG)
         leaves = self.bot.get_channel(config.CHAN_JOINS_LEAVES)
         entries = await member.guild.audit_logs(limit=1, action=discord.AuditLogAction.kick).flatten()
