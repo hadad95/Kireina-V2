@@ -11,7 +11,7 @@ import utils
 class Logger(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.regex_inv = re.compile(r'discord(?:app\.com\/invite|\.gg)\/([a-z0-9]{1,16})', re.IGNORECASE)
+        self.regex_inv = re.compile(r'discord(?:(app)?\.com\/invite|\.gg)\/([a-z0-9]{1,16})', re.IGNORECASE)
         with open('filtered_words.txt', 'r') as file:
             self.filtered_words = file.read().split('\n')
 
@@ -219,7 +219,7 @@ class Logger(commands.Cog):
         if matches:
             guild_invites = await msg.guild.invites()
             for match in matches:
-                if not any(match == inv.code for inv in guild_invites):
+                if not any(inv.code in match for inv in guild_invites):
                     if discord.utils.get(msg.author.roles, id=config.ROLE_STAFF) is None and msg.channel.id != config.CHAN_PROMOTIONS:
                         await self.submit_filtered_message(msg)
         
