@@ -222,12 +222,14 @@ class Logger(commands.Cog):
                 if not any(inv.code in match for inv in guild_invites):
                     if discord.utils.get(msg.author.roles, id=config.ROLE_STAFF) is None and msg.channel.id != config.CHAN_PROMOTIONS:
                         await self.submit_filtered_message(msg)
+                        await msg.author.add_roles(discord.Object(id=config.ROLE_MUTED), reason='Auto-mute for sending ads')
         
         # check for filtered words
         content = msg.content.lower()
         for word in self.filtered_words:
             if word.lower() in content:
                 await self.submit_filtered_message(msg)
+                await msg.author.add_roles(discord.Object(id=config.ROLE_MUTED), reason='Auto-mute for sending filtered messages')
 
 
     # gotta remember there's no payload.channel_id in this version
