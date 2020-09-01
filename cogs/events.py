@@ -109,9 +109,6 @@ class Logger(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        if before.bot:
-            return
-
         before_muted = discord.utils.get(before.roles, id=config.ROLE_MUTED) is not None
         after_muted = discord.utils.get(after.roles, id=config.ROLE_MUTED) is not None
         entries = None
