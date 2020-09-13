@@ -36,7 +36,7 @@ class Logger(commands.Cog):
         
         roles = [discord.Object(id=x) for x in roles]
         try:
-            await member.add_roles(roles)
+            await member.add_roles(*roles)
         except:
             pass
 
