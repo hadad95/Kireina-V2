@@ -200,7 +200,7 @@ class Logger(commands.Cog):
         embed.set_thumbnail(url=msg.author.avatar_url)
         embed.add_field(name='Member', value=f'{msg.author.mention} ({msg.author})', inline=False)
         embed.add_field(name='Channel', value=msg.channel.mention, inline=False)
-        embed.add_field(name='Message', value=msg.content, inline=False)
+        embed.add_field(name='Message', value=(msg.content[:1020] + '...') if len(msg.content) > 1024 else msg.content, inline=False)
         embed.timestamp = datetime.utcnow()
         embed.set_footer(text=f'Author ID: {msg.author.id}')
         channel = self.bot.get_channel(config.CHAN_FLAGGED_MSGS)
@@ -221,15 +221,15 @@ class Logger(commands.Cog):
             for match in matches:
                 if not any(inv.code in match for inv in guild_invites):
                     if discord.utils.get(msg.author.roles, id=config.ROLE_STAFF) is None and msg.channel.id != config.CHAN_PROMOTIONS:
-                        await self.submit_filtered_message(msg)
                         await msg.author.add_roles(discord.Object(id=config.ROLE_MUTED), reason='Auto-mute for sending ads')
+                        await self.submit_filtered_message(msg)
         
         # check for filtered words
         content = msg.content.lower()
         for word in self.filtered_words:
             if word.lower() in content:
-                await self.submit_filtered_message(msg)
                 await msg.author.add_roles(discord.Object(id=config.ROLE_MUTED), reason='Auto-mute for sending filtered messages')
+                await self.submit_filtered_message(msg)
 
 
     # gotta remember there's no payload.channel_id in this version
