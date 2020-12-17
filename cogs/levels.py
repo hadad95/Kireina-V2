@@ -32,7 +32,7 @@ class Levels(commands.Cog):
     
     async def level_up(self, member, level, channel):
         if channel:
-            await channel.send(f'Congratulations {member.mention}! You are now level {level} :tada:')
+            await channel.send(f'Congratulations {member.mention}! You are now level {level} :tada:<a:bongohrt:687814808028184601>')
         
         if level in config.LEVELS_ROLES:
             await member.add_roles(discord.Object(id=config.LEVELS_ROLES[level]), reason='Role reward for leveling up.')
@@ -73,7 +73,7 @@ class Levels(commands.Cog):
         
         total_xp = result['xp']
         level = Levels.level_from_xp(total_xp)
-        level_xp = Levels.xp_from_level(level)
+        level_xp = int(Levels.xp_from_level(level + 1))
         await ctx.send(f'XP: {total_xp}/{level_xp}. Level: {level}')
 
 def setup(bot):
