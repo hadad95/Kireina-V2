@@ -47,7 +47,7 @@ class Levels(commands.Cog):
         old_level = Levels.level_from_xp(old_xp)
         new_level = Levels.level_from_xp(new_xp)
         if new_level > old_level:
-            await level_up(member, new_level, channel)
+            await self.level_up(member, new_level, channel)
     
     @commands.Cog.listener()
     async def on_message(self, msg):
@@ -57,15 +57,15 @@ class Levels(commands.Cog):
         current_time = time.time()
         if msg.author.id in self.timestamps:
             if current_time >= self.timestamps[msg.author.id] + config.LEVELS_TIMEOUT:
-                add_xp(msg.author, msg.channel)
+                self.add_xp(msg.author, msg.channel)
                 self.timestamps[msg.author.id] = current_time
         else:
-            add_xp(msg.author, msg.channel)
+            self.add_xp(msg.author, msg.channel)
             self.timestamps[msg.author.id] = current_time
 
     @commands.command()
     async def xp(self, ctx):
-        result = await self.bot.db.find_one({'user_id': member.id})
+        result = await self.bot.db.find_one({'user_id': ctx.author.id})
         if not result:
             await ctx.send('You don\'t have any XP')
             return

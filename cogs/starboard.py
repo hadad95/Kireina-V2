@@ -18,7 +18,6 @@ class Starboard(commands.Cog):
         await self.reaction_action('remove', payload)
 
     async def add_entry(self, msg, count):
-        print("Creating embed")
         embed = discord.Embed()
         embed.set_author(name=str(msg.author), icon_url=msg.author.avatar_url)
         embed.set_footer(text=f'ID: {msg.id}')
@@ -32,7 +31,6 @@ class Starboard(commands.Cog):
                 embed.add_field(name='Attachment', value=f'[{file.filename}]({file.url})', inline=False)
         
         embed.add_field(name='Jump to message', value=f'[Jump](https://discordapp.com/channels/{msg.guild.id}/{msg.channel.id}/{msg.id})', inline=False)
-        print("Sending message")
         star_msg = await self.bot.get_channel(config.CHAN_STARBOARD).send(f'{STAR} {count} {msg.channel.mention}', embed=embed)
         await self.bot.db.starboard.insert_one({
             'channel_id': msg.channel.id,
@@ -72,7 +70,6 @@ class Starboard(commands.Cog):
                 count -= 1
 
         if action == 'add':
-            print('Entered "add"')
             if count < MIN_REACTIONS:
                 return
             
@@ -83,7 +80,6 @@ class Starboard(commands.Cog):
                 await self.update_entry(msg, count, entry['star_message_id'])
                 
         elif action == 'remove':
-            print('Entered "remove"')
             entry = await self.bot.db.starboard.find_one({'channel_id': payload.channel_id, 'message_id': msg.id})
             if not entry and count >= MIN_REACTIONS:
                 await self.add_entry(msg, count)
