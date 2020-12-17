@@ -1,6 +1,7 @@
 import config
 import discord
 from discord.ext import commands, tasks
+from pymongo import ReturnDocument
 import random
 import time
 
@@ -40,8 +41,8 @@ class Levels(commands.Cog):
         # do db call to get current xp
         #gain = random.randint(config.LEVELS_MIN_XP, config.LEVELS_MAX_XP)
         gain = 50
-        await self.bot.db.levels.update_one({'user_id': member.id}, {'$inc': {'xp': gain}})
-        result = await self.bot.db.levels.find_one({'user_id': member.id})
+        result = await self.bot.db.levels.find_one_and_update({'user_id': member.id}, {'$inc': {'xp': gain}}, upsert=True, return_document=ReturnDocument.AFTER)
+        #result = await self.bot.db.levels.find_one({'user_id': member.id})
         new_xp = result['xp']
         old_xp = new_xp - gain
         old_level = Levels.level_from_xp(old_xp)
