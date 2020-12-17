@@ -41,7 +41,7 @@ class Levels(commands.Cog):
         #gain = random.randint(config.LEVELS_MIN_XP, config.LEVELS_MAX_XP)
         gain = 50
         await self.bot.db.levels.update_one({'user_id': member.id}, {'$inc': {'xp': gain}})
-        result = await self.bot.db.find_one({'user_id': member.id})
+        result = await self.bot.db.levels.find_one({'user_id': member.id})
         new_xp = result['xp']
         old_xp = new_xp - gain
         old_level = Levels.level_from_xp(old_xp)
@@ -65,7 +65,7 @@ class Levels(commands.Cog):
 
     @commands.command()
     async def xp(self, ctx):
-        result = await self.bot.db.find_one({'user_id': ctx.author.id})
+        result = await self.bot.db.levels.find_one({'user_id': ctx.author.id})
         if not result:
             await ctx.send('You don\'t have any XP')
             return
