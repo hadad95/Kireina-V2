@@ -27,7 +27,7 @@ class Levels(commands.Cog):
         guild = self.bot.get_guild(config.GUILD)
         for vc in guild.voice_channels:
             for member in vc.members:
-                self.add_xp(member, None)
+                await self.add_xp(member, None)
     
     async def level_up(self, member, level, channel):
         if channel:
@@ -57,10 +57,10 @@ class Levels(commands.Cog):
         current_time = time.time()
         if msg.author.id in self.timestamps:
             if current_time >= self.timestamps[msg.author.id] + config.LEVELS_TIMEOUT:
-                self.add_xp(msg.author, msg.channel)
+                await self.add_xp(msg.author, msg.channel)
                 self.timestamps[msg.author.id] = current_time
         else:
-            self.add_xp(msg.author, msg.channel)
+            await self.add_xp(msg.author, msg.channel)
             self.timestamps[msg.author.id] = current_time
 
     @commands.command()
