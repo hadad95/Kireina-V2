@@ -41,7 +41,6 @@ class Levels(commands.Cog):
     async def add_xp(self, member, channel):
         # do db call to get current xp
         #gain = random.randint(config.LEVELS_MIN_XP, config.LEVELS_MAX_XP)
-        gain = 50
         result = await self.bot.db.levels.find_one_and_update({'user_id': member.id}, {'$inc': {'xp': gain}}, upsert=True, return_document=ReturnDocument.AFTER)
         #result = await self.bot.db.levels.find_one({'user_id': member.id})
         new_xp = result['xp']
@@ -53,7 +52,7 @@ class Levels(commands.Cog):
     
     @commands.Cog.listener()
     async def on_message(self, msg):
-        if msg.author.bot or msg.author.id != 210067529786327051:
+        if msg.author.bot:
             return
         
         current_time = time.time()
