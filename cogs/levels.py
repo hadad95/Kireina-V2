@@ -87,7 +87,7 @@ class Levels(commands.Cog):
     async def leaderboard(self, ctx):
         txt = 'Top 10 users in the server\n```less\n'
         i = 1
-        async for doc in self.bot.db.levels.find(sort=[('xp', DESCENDING)], limit=1):
+        async for doc in self.bot.db.levels.find(sort=[('xp', DESCENDING)], limit=10):
             user_id = doc['user_id']
             user = self.bot.get_user(user_id)
             xp = doc['xp']
