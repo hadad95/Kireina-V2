@@ -93,7 +93,7 @@ class Levels(commands.Cog):
             xp = doc['xp']
             level = Levels.level_from_xp(xp)
             #next_level_xp = Levels.xp_from_level(level + 1)
-            txt += f'{i}. {user} ♥ {xp}'
+            txt += f'{i}. {user} ♥ {xp}\n'
             i += 1
         
         txt += '```'
