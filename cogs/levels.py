@@ -28,7 +28,7 @@ class Levels(commands.Cog):
         guild = self.bot.get_guild(config.GUILD)
         for vc in guild.voice_channels:
             for member in vc.members:
-                if member.voice and not member.voice.afk:
+                if member.voice and not member.voice.afk and len(member.voice.channel.members) > 1:
                     await self.add_xp(member, None)
     
     async def level_up(self, member, level, channel):
