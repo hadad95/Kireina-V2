@@ -40,7 +40,7 @@ class Levels(commands.Cog):
     
     async def add_xp(self, member, channel):
         # do db call to get current xp
-        #gain = random.randint(config.LEVELS_MIN_XP, config.LEVELS_MAX_XP)
+        gain = random.randint(config.LEVELS_MIN_XP, config.LEVELS_MAX_XP)
         result = await self.bot.db.levels.find_one_and_update({'user_id': member.id}, {'$inc': {'xp': gain}}, upsert=True, return_document=ReturnDocument.AFTER)
         #result = await self.bot.db.levels.find_one({'user_id': member.id})
         new_xp = result['xp']
@@ -85,7 +85,7 @@ class Levels(commands.Cog):
     
     @commands.command()
     async def leaderboard(self, ctx):
-        txt = 'Top 10 users in the server\n```less'
+        txt = 'Top 10 users in the server\n```less\n'
         i = 1
         async for doc in self.bot.db.levels.find(sort=[('xp', DESCENDING)], limit=1):
             user_id = doc['user_id']
