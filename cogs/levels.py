@@ -1,7 +1,7 @@
 import config
 import discord
 from discord.ext import commands, tasks
-from pymongo import ReturnDocument
+from pymongo import ReturnDocument, DESCENDING
 import random
 import time
 
@@ -65,16 +65,40 @@ class Levels(commands.Cog):
             self.timestamps[msg.author.id] = current_time
 
     @commands.command()
-    async def xp(self, ctx):
-        result = await self.bot.db.levels.find_one({'user_id': ctx.author.id})
+    async def xp(self, ctx, member: discord.Member=None):
+        target = member if member else ctx.author
+        result = await self.bot.db.levels.find_one({'user_id': target.id})
         if not result:
-            await ctx.send('You don\'t have any XP')
+            await ctx.send("That member doesn't have any XP <a:sadhrt:692106232999182397>")
             return
         
         total_xp = result['xp']
         level = Levels.level_from_xp(total_xp)
         level_xp = int(Levels.xp_from_level(level + 1))
-        await ctx.send(f'XP: {total_xp}/{level_xp}. Level: {level}')
+        embed = discord.Embed()
+        embed.colour = discord.Colour(0xEA0A8E)
+        embed.set_author(name=str(target), icon_url=target.avatar_url)
+        embed.set_thumbnail(url=target.avatar_url)
+        embed.add_field(name='Level', value=str(level), inline=False)
+        embed.add_field(name='XP', value=f'{total_xp}/{level_xp}', inline=False)
+        await ctx.send('', embed=embed)
+    
+    @commands.command()
+    async def leaderboard(self, ctx):
+        txt = 'Top 10 users in the server\n```less'
+        i = 1
+        async for doc in self.bot.db.levels.find(sort=[('xp', DESCENDING)], limit=1):
+            user_id = doc['user_id']
+            user = self.bot.get_user(user_id)
+            xp = doc['xp']
+            level = Levels.level_from_xp(xp)
+            #next_level_xp = Levels.xp_from_level(level + 1)
+            txt += f'{i}. {user} ♥ {xp}'
+            i += 1
+        
+        txt += '```'
+        await ctx.send(txt)
+        
 
 def setup(bot):
     bot.add_cog(Levels(bot))
