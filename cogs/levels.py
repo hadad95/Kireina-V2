@@ -31,6 +31,10 @@ class Levels(commands.Cog):
                 if member.voice and not member.voice.afk and len(member.voice.channel.members) > 1:
                     await self.add_xp(member, None)
     
+    @vc_xp_loop.before_loop
+    async def before_vc_loop(self):
+        await self.bot.wait_until_ready()
+    
     async def level_up(self, member, level, channel):
         if channel:
             await channel.send(f'Congratulations {member.mention}! You are now level {level} :tada:<a:bongohrt:687814808028184601>')
