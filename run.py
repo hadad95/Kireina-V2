@@ -18,7 +18,8 @@ class Kireina(commands.Bot):
             'cogs.owner',
             'cogs.main',
             'cogs.error_handler',
-            'cogs.starboard'
+            'cogs.starboard',
+            'cogs.levels'
         ]
 
         for cog in cogs:
