@@ -82,7 +82,7 @@ class Levels(commands.Cog):
         total_xp = result['xp']
         level = Levels.level_from_xp(total_xp)
         level_xp = int(Levels.xp_from_level(level + 1))
-        rank = await bot.db.levels.count_documents({'xp': {'$gt': total_xp}}) + 1
+        rank = await self.bot.db.levels.count_documents({'xp': {'$gt': total_xp}}) + 1
         embed = discord.Embed()
         embed.colour = discord.Colour(0xEA0A8E)
         embed.set_author(name=str(target), icon_url=target.avatar_url)
