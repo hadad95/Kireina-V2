@@ -28,8 +28,8 @@ class Levels(commands.Cog):
         guild = self.bot.get_guild(config.GUILD)
         for vc in guild.voice_channels:
             for member in vc.members:
-                if member.voice and not member.voice.afk and len(member.voice.channel.members) > 1:
-                    await self.add_xp(member, None)
+                if member.voice and not member.voice.afk and not member.voice.mute and not member.voice.self_mute and len(member.voice.channel.members) > 1:
+                    await self.add_xp(member, None, vc=True)
     
     @vc_xp_loop.before_loop
     async def before_vc_loop(self):
@@ -42,9 +42,12 @@ class Levels(commands.Cog):
         if level in config.LEVELS_ROLES:
             await member.add_roles(discord.Object(id=config.LEVELS_ROLES[level]), reason='Role reward for leveling up.')
     
-    async def add_xp(self, member, channel):
+    async def add_xp(self, member, channel, vc=False):
         # do db call to get current xp
         gain = random.randint(config.LEVELS_MIN_XP, config.LEVELS_MAX_XP)
+        if vc:
+            gain = gain // 2
+        
         result = await self.bot.db.levels.find_one_and_update({'user_id': member.id}, {'$inc': {'xp': gain}}, upsert=True, return_document=ReturnDocument.AFTER)
         #result = await self.bot.db.levels.find_one({'user_id': member.id})
         new_xp = result['xp']
