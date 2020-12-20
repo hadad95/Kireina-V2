@@ -15,3 +15,4 @@ LEVELS_TIMEOUT = 60 #in seconds
 LEVELS_MIN_XP = 10
 LEVELS_MAX_XP = 60
 LEVELS_ROLES = {1: 123, 2: 456} #levels that have role rewards
+LEVELS_IGNORED_CHANNELS = [123, 456] #channels in which xp gain should be ignored

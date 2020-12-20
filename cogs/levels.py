@@ -59,7 +59,7 @@ class Levels(commands.Cog):
     
     @commands.Cog.listener()
     async def on_message(self, msg):
-        if msg.author.bot:
+        if msg.author.bot or msg.channel in config.LEVELS_IGNORED_CHANNELS:
             return
         
         current_time = time.time()
@@ -82,12 +82,14 @@ class Levels(commands.Cog):
         total_xp = result['xp']
         level = Levels.level_from_xp(total_xp)
         level_xp = int(Levels.xp_from_level(level + 1))
+        rank = await bot.db.levels.count_documents({'xp': {'$gt': total_xp}}) + 1
         embed = discord.Embed()
         embed.colour = discord.Colour(0xEA0A8E)
         embed.set_author(name=str(target), icon_url=target.avatar_url)
         embed.set_thumbnail(url=target.avatar_url)
         embed.add_field(name='Level', value=str(level), inline=False)
         embed.add_field(name='XP', value=f'{total_xp}/{level_xp}', inline=False)
+        embed.add_field(name='Rank', value=str(rank), inline=False)
         await ctx.send('', embed=embed)
     
     @commands.command()
