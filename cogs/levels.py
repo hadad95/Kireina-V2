@@ -59,7 +59,7 @@ class Levels(commands.Cog):
     
     @commands.Cog.listener()
     async def on_message(self, msg):
-        if msg.author.bot or msg.channel in config.LEVELS_IGNORED_CHANNELS:
+        if msg.author.bot or msg.channel.id in config.LEVELS_IGNORED_CHANNELS:
             return
         
         current_time = time.time()
