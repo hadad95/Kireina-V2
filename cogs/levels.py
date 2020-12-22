@@ -25,12 +25,21 @@ class Levels(commands.Cog):
     
     @staticmethod
     async def fix_roles(member, level):
+        add = remove = []
         for i in config.LEVELS_ROLES:
             role_id = config.LEVELS_ROLES[i]
-            if i <= level and not any(role_id == role.id for role in member.roles): #give missing roles
-                await member.add_roles(discord.Object(id=role_id), reason='Level role rewarded.')
-            elif i > level and any(role_id == role.id for role in member.roles): #remove higher level roles
-                await member.remove_roles(discord.Object(id=role_id), reason='Level role revoked.')
+            if i <= level and not any(role_id == role.id for role in member.roles): # give missing roles
+                #await member.add_roles(discord.Object(id=role_id), reason='Level role rewarded.')
+                add.append(discord.Object(id=role_id))
+            elif i > level and any(role_id == role.id for role in member.roles): # remove higher level roles
+                #await member.remove_roles(discord.Object(id=role_id), reason='Level role revoked.')
+                remove.append(discord.Object(id=role_id))
+        
+        if add:
+            await member.add_roles(add, reason='Level role rewarded.')
+        
+        if remove:
+            await member.remove_roles(remove, reason='Level role revoked.')
     
     @tasks.loop(seconds=60)
     async def vc_xp_loop(self):
