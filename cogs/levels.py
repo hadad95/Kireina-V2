@@ -124,7 +124,7 @@ class Levels(commands.Cog):
     async def setlevel(self, ctx, member: discord.Member, level: int):
         """ Set a user's level """
         xp = Levels.xp_from_level(level)
-        await self.bot.db.levels.update_one({'user_id': member.id}, {'xp': xp}, upsert=True)
+        await self.bot.db.levels.update_one({'user_id': member.id}, {'$set': {'xp': xp}}, upsert=True)
         await Levels.fix_roles(member, level)
         await ctx.send(f"User {member.mention}'s level has been set to `{level}` <a:bongohrt:687814808028184601>")
         
