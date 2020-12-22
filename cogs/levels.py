@@ -25,7 +25,8 @@ class Levels(commands.Cog):
     
     @staticmethod
     async def fix_roles(member, level):
-        add = remove = []
+        add =[]
+        remove = []
         for i in config.LEVELS_ROLES:
             role_id = config.LEVELS_ROLES[i]
             if i <= level and not any(role_id == role.id for role in member.roles): # give missing roles
