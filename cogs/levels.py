@@ -13,7 +13,7 @@ class Levels(commands.Cog):
     
     @staticmethod
     def xp_from_level(level):
-        return (5/6) * level * (2 * level ** 2 + 27 * level + 91)
+        return int((5/6) * level * (2 * level ** 2 + 27 * level + 91))
     
     @staticmethod
     def level_from_xp(xp):
@@ -82,6 +82,7 @@ class Levels(commands.Cog):
 
     @commands.command()
     async def xp(self, ctx, member: discord.Member=None):
+        """ Check your XP, level, and leaderboard ranking """
         target = member if member else ctx.author
         result = await self.bot.db.levels.find_one({'user_id': target.id})
         if not result:
@@ -90,7 +91,7 @@ class Levels(commands.Cog):
         
         total_xp = result['xp']
         level = Levels.level_from_xp(total_xp)
-        level_xp = int(Levels.xp_from_level(level + 1))
+        level_xp = Levels.xp_from_level(level + 1)
         rank = await self.bot.db.levels.count_documents({'xp': {'$gt': total_xp}}) + 1
         embed = discord.Embed()
         embed.colour = discord.Colour(0xEA0A8E)
@@ -103,6 +104,7 @@ class Levels(commands.Cog):
     
     @commands.command()
     async def leaderboard(self, ctx):
+        """ View the top 10 users in the server """
         txt = 'Top 10 users in the server\n```less\n'
         i = 1
         async for doc in self.bot.db.levels.find(sort=[('xp', DESCENDING)], limit=10):
@@ -119,7 +121,8 @@ class Levels(commands.Cog):
     
     @commands.has_role(config.ROLE_STAFF)
     @commands.command()
-    async def setlevel(self, ctx, member: discord.Member, level):
+    async def setlevel(self, ctx, member: discord.Member, level: int):
+        """ Set a user's level """
         xp = Levels.xp_from_level(level)
         await self.bot.db.levels.update_one({'user_id': member.id}, {'xp': xp}, upsert=True)
         await Levels.fix_roles(member, level)
