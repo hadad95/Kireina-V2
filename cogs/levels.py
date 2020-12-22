@@ -36,10 +36,10 @@ class Levels(commands.Cog):
                 remove.append(discord.Object(id=role_id))
         
         if add:
-            await member.add_roles(add, reason='Level role rewarded.')
+            await member.add_roles(*add, reason='Level role rewarded.')
         
         if remove:
-            await member.remove_roles(remove, reason='Level role revoked.')
+            await member.remove_roles(*remove, reason='Level role revoked.')
     
     @tasks.loop(seconds=60)
     async def vc_xp_loop(self):
