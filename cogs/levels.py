@@ -23,6 +23,15 @@ class Levels(commands.Cog):
         
         return level
     
+    @staticmethod
+    async def fix_roles(member, level):
+        for i in config.LEVELS_ROLES:
+            role_id = config.LEVELS_ROLES[i]
+            if i <= level and not any(role_id == role.id for role in member.roles): #give missing roles
+                await member.add_roles(discord.Object(id=role_id), reason='Level role rewarded.')
+            elif i > level and any(role_id == role.id for role in member.roles): #remove higher level roles
+                await member.remove_roles(discord.Object(id=role_id), reason='Level role revoked.')
+    
     @tasks.loop(seconds=60)
     async def vc_xp_loop(self):
         guild = self.bot.get_guild(config.GUILD)
@@ -40,7 +49,7 @@ class Levels(commands.Cog):
             await channel.send(f'Congratulations {member.mention}! You are now level {level} :tada:<a:bongohrt:687814808028184601>')
         
         if level in config.LEVELS_ROLES:
-            await member.add_roles(discord.Object(id=config.LEVELS_ROLES[level]), reason='Role reward for leveling up.')
+            await member.add_roles(discord.Object(id=config.LEVELS_ROLES[level]), reason='Level role rewarded.')
     
     async def add_xp(self, member, channel, vc=False):
         # do db call to get current xp
@@ -107,6 +116,14 @@ class Levels(commands.Cog):
         
         txt += '```'
         await ctx.send(txt)
+    
+    @commands.has_role(config.ROLE_STAFF)
+    @commands.command()
+    async def setlevel(self, ctx, member: discord.Member, level):
+        xp = Levels.xp_from_level(level)
+        await self.bot.db.levels.update_one({'user_id': member.id}, {'xp': xp}, upsert=True)
+        await Levels.fix_roles(member, level)
+        await ctx.send(f"User {member.mention}'s level has been set to `{level}` <a:bongohrt:687814808028184601>")
         
 
 def setup(bot):
