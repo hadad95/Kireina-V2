@@ -116,6 +116,7 @@ class Levels(commands.Cog):
     async def leaderboard(self, ctx):
         """ View the top 10 users in the server """
         txt = 'Top 10 users in the server\n```less\n'
+        rows = []
         i = 1
         async for doc in self.bot.db.levels.find(sort=[('xp', DESCENDING)], limit=10):
             user_id = doc['user_id']
@@ -123,8 +124,13 @@ class Levels(commands.Cog):
             xp = doc['xp']
             level = Levels.level_from_xp(xp)
             #next_level_xp = Levels.xp_from_level(level + 1)
-            txt += f'{i}. {user} ♥ {xp}\n'
+            #txt += f'{i}. {user} ♥ {xp}\n'
+            rows.append([f'{i}. {user}', ' ♥', f'Lvl. {level}', f'({xp})'])
             i += 1
+        
+        widths = [max(map(len, col)) for col in zip(*rows)]
+        for row in rows:
+            txt += "  ".join((val.ljust(width) for val, width in zip(row, widths))) + '\n'
         
         txt += '```'
         await ctx.send(txt)
