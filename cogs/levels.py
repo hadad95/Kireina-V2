@@ -112,7 +112,7 @@ class Levels(commands.Cog):
         embed.add_field(name='Rank', value=str(rank), inline=False)
         await ctx.send('', embed=embed)
     
-    @commands.command()
+    @commands.command(aliases=['lb'])
     async def leaderboard(self, ctx):
         """ View the top 10 users in the server """
         txt = 'Top 10 users in the server\n```less\n'
@@ -125,7 +125,7 @@ class Levels(commands.Cog):
             level = Levels.level_from_xp(xp)
             #next_level_xp = Levels.xp_from_level(level + 1)
             #txt += f'{i}. {user} ♥ {xp}\n'
-            rows.append([f'{i}. {user}', ' ♥', f'Lvl. {level}', f'({xp})'])
+            rows.append([f'{i}. {user}', ' ♥', f'Lvl. {level}', f'(XP: {xp})'])
             i += 1
         
         widths = [max(map(len, col)) for col in zip(*rows)]
