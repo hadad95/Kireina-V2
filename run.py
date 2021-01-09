@@ -12,14 +12,14 @@ class Kireina(commands.Bot):
         super().__init__(command_prefix=';;', intents=intents)
         print('Loading extensions/cogs...')
         cogs = [
+            'cogs.levels',
             'cogs.events',
             'cogs.mod',
             'cogs.triggers',
             'cogs.owner',
             'cogs.main',
             'cogs.error_handler',
-            'cogs.starboard',
-            'cogs.levels'
+            'cogs.starboard'
         ]
 
         for cog in cogs:
