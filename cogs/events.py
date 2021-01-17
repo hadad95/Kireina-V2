@@ -281,15 +281,18 @@ class Logger(commands.Cog):
         author = await self.bot.fetch_user(msg['author_id'])
         channel = self.bot.get_channel(payload.channel_id)
         chan = self.bot.get_channel(config.CHAN_EDITS_DELETES)
+        content = msg['content'] if msg['content'] else 'None'
+        actual_content = '[Content > 1024 characters]' if len(content) > 1024 else content
+        file_upload = discord.File(io.StringIO(content), filename='message.txt') if len(content) > 1024 else None
         embed = discord.Embed()
         embed.set_author(name=f'Message deleted', icon_url=author.avatar_url)
         embed.set_thumbnail(url=author.avatar_url)
         embed.add_field(name='Author', value=f'{author.mention} ({author})', inline=False)
         embed.add_field(name='Channel', value=channel.mention, inline=False)
-        embed.add_field(name='Content', value=msg['content'] if msg['content'] else 'None', inline=False)
+        embed.add_field(name='Content', value=actual_content, inline=False)
         embed.set_footer(text=f'Author ID: {author.id}')
         embed.timestamp = datetime.utcnow()
-        await chan.send(embed=embed)
+        await chan.send(embed=embed, file=file_upload)
         await self.bot.db.messages.delete_many({'msg_id': payload.message_id, 'channel_id': payload.channel_id})
 
     @commands.Cog.listener()
