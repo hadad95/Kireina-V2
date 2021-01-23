@@ -10,6 +10,12 @@ class Kireina(commands.Bot):
         intents = discord.Intents.default()
         intents.members = True
         super().__init__(command_prefix=';;', intents=intents)
+        self.dbclient = AsyncIOMotorClient('mongodb://localhost:27017/', io_loop=self.loop)
+        self.db = self.dbclient.kireina
+        self.loop.run_until_complete(self.initialize_db())
+
+    async def on_ready(self):
+        print(f'READY! Logged in as {self.user}')
         print('Loading extensions/cogs...')
         cogs = [
             'cogs.levels',
@@ -31,13 +37,6 @@ class Kireina(commands.Bot):
             except ImportError as ex:
                 print(f'Failed to load "{cog}" because of an importerror.')
                 print(ex)
-
-        self.dbclient = AsyncIOMotorClient('mongodb://localhost:27017/', io_loop=self.loop)
-        self.db = self.dbclient.kireina
-        self.loop.run_until_complete(self.initialize_db())
-
-    async def on_ready(self):
-        print(f'READY! Logged in as {self.user}')
 
     async def initialize_db(self):
         print('Connecting to database...')
