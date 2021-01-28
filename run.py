@@ -25,7 +25,8 @@ class Kireina(commands.Bot):
             'cogs.owner',
             'cogs.main',
             'cogs.error_handler',
-            'cogs.starboard'
+            'cogs.starboard',
+            'cogs.music'
         ]
 
         for cog in cogs:
