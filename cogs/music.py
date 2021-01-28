@@ -141,3 +141,6 @@ class Music(commands.Cog):
         # Disconnect from the voice channel.
         await self.connect_to(ctx.guild.id, None)
         await ctx.send('*⃣ | Disconnected.')
+
+def setup(bot):
+    bot.add_cog(Music(bot))
