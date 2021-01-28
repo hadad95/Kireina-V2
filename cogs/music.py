@@ -10,7 +10,7 @@ class Music(commands.Cog):
         self.bot = bot
         if not hasattr(bot, 'lavalink'):
             bot.lavalink = lavalink.Client(bot.user.id)
-            bot.lavalink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'us-east', name='default-node')
+            bot.lavalink.add_node('127.0.0.1', 2333, 'stupidrandompassword', 'us-east', name='default-node')
             bot.add_listener(bot.lavalink.voice_update_handler, 'on_socket_response')
         
         lavalink.add_event_hook(self.track_hook)
