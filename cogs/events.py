@@ -187,7 +187,8 @@ class Logger(commands.Cog):
             embed.title = 'Member switched voice channels'
             embed.add_field(name='Channels', value=f'From {before.channel.name} to {after.channel.name}', inline=False)
         elif before.channel is not None and after.channel is None:
-            #await chan.send(f'{member.display_name} left {before.channel.name}')
+            embed.title = 'Member left voice channel'
+            embed.add_field(name='Channel', value=before.channel.name, inline=False)
 
         await chan.send(embed=embed)
     
