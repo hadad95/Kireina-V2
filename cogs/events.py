@@ -189,6 +189,8 @@ class Logger(commands.Cog):
         elif before.channel is not None and after.channel is None:
             embed.title = 'Member left voice channel'
             embed.add_field(name='Channel', value=before.channel.name, inline=False)
+        else: # return if it's none of the cases up above
+            return
 
         await chan.send(embed=embed)
     
