@@ -176,7 +176,7 @@ class Logger(commands.Cog):
         if member.bot:
             return
 
-        chan = self.bot.get_channel(config.CHAN_VC_JOIN)
+        chan = self.bot.get_channel(config.CHAN_VC_LOGS)
         embed = discord.Embed()
         embed.add_field(name='User', value=f'{member.mention} ({member})', inline=False)
         embed.set_thumbnail(url=member.avatar_url)
@@ -186,9 +186,7 @@ class Logger(commands.Cog):
         elif before.channel is not None and after.channel is not None and before.channel is not after.channel:
             embed.title = 'Member switched voice channels'
             embed.add_field(name='Channels', value=f'From {before.channel.name} to {after.channel.name}', inline=False)
-        else:
-            return
-        #elif before.channel is not None and after.channel is None:
+        elif before.channel is not None and after.channel is None:
             #await chan.send(f'{member.display_name} left {before.channel.name}')
 
         await chan.send(embed=embed)
