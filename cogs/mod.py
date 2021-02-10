@@ -60,7 +60,7 @@ class Mod(commands.Cog):
         return fmt.format(d=days, h=hours, m=minutes, s=seconds)
 
     @commands.command()
-    @commands.has_role(config.ROLE_STAFF)
+    @commands.has_any_role(*config.ROLE_STAFF)
     async def userinfo(self, ctx, member: discord.Member):
         embed = discord.Embed()
         embed.set_author(name=f'{member.name}#{member.discriminator}', icon_url=member.avatar_url)
@@ -76,7 +76,7 @@ class Mod(commands.Cog):
 
 
     @commands.command()
-    @commands.has_role(config.ROLE_STAFF)
+    @commands.has_any_role(*config.ROLE_STAFF)
     async def newusers(self, ctx):
         """Shows information about latest joined users."""
 
@@ -92,7 +92,7 @@ class Mod(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(aliases=['k'])
-    @commands.has_role(config.ROLE_STAFF)
+    @commands.has_any_role(*config.ROLE_STAFF)
     async def kick(self, ctx, user: discord.Member, *, reason=''):
         """ Kick a member. """
         await user.kick(reason=reason)
@@ -100,7 +100,7 @@ class Mod(commands.Cog):
         await ctx.send(f'Successfully kicked `{user}`!')
 
     @commands.command(aliases=['b'])
-    @commands.has_role(config.ROLE_STAFF)
+    @commands.has_any_role(*config.ROLE_STAFF)
     async def ban(self, ctx, user: typing.Union[discord.User, int], *, reason=''):
         """ Ban a member. """
         self.last_ban_ctx = ctx
@@ -110,7 +110,7 @@ class Mod(commands.Cog):
         await ctx.guild.ban(user, reason=reason)
         await ctx.send(f'Successfully banned `{user}`!')
 
-    @commands.has_role(config.ROLE_STAFF)
+    @commands.has_any_role(*config.ROLE_STAFF)
     @commands.command(aliases=['m'])
     async def mute(self, ctx, member: discord.Member, *, reason=''):
         """ Mute a member.
@@ -124,7 +124,7 @@ class Mod(commands.Cog):
         self.last_mute_unmute_ctx = ctx
         await ctx.send(f'Muted `{member}` successfully!')
 
-    @commands.has_role(config.ROLE_STAFF)
+    @commands.has_any_role(*config.ROLE_STAFF)
     @commands.command(aliases=['u'])
     async def unmute(self, ctx, member: discord.Member, *, reason=''):
         """ Unmute a member. """
@@ -139,7 +139,7 @@ class Mod(commands.Cog):
 
         await ctx.send(f'Unmuted `{member}` successfully!')
 
-    @commands.has_role(config.ROLE_STAFF)
+    @commands.has_any_role(*config.ROLE_STAFF)
     @commands.command(aliases=['r'])
     async def reason(self, ctx, case_id: int, *, reason):
         """ Add a reason to a modlog case.
@@ -170,7 +170,7 @@ class Mod(commands.Cog):
         await msg.edit(embed=embed)
         await ctx.send(f'Reason changed for case #{case_id}')
 
-    @commands.has_role(config.ROLE_STAFF)
+    @commands.has_any_role(*config.ROLE_STAFF)
     @commands.command()
     async def clean(self, ctx, target: typing.Union[discord.User, str], limit=200):
         """ Clean messages.
