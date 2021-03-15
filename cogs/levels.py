@@ -135,7 +135,7 @@ class Levels(commands.Cog):
         txt += '```'
         await ctx.send(txt)
     
-    @commands.has_role(config.ROLE_STAFF)
+    @commands.has_any_role(config.ROLE_STAFF)
     @commands.command()
     async def setlevel(self, ctx, member: discord.Member, level: int):
         """ Set a user's level """
