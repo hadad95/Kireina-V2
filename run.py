@@ -13,31 +13,36 @@ class Kireina(commands.Bot):
         self.dbclient = AsyncIOMotorClient('mongodb://localhost:27017/', io_loop=self.loop)
         self.db = self.dbclient.kireina
         self.loop.run_until_complete(self.initialize_db())
+        self.cogs_loaded = False
 
     async def on_ready(self):
         print(f'READY! Logged in as {self.user}')
         print('Loading extensions/cogs...')
-        cogs = [
-            'cogs.levels',
-            'cogs.events',
-            'cogs.mod',
-            'cogs.triggers',
-            'cogs.owner',
-            'cogs.main',
-            'cogs.error_handler',
-            'cogs.starboard',
-            'cogs.music'
-        ]
+        if not self.cogs_loaded:
+            self.cogs_loaded = True
+            cogs = [
+                'cogs.levels',
+                'cogs.events',
+                'cogs.mod',
+                'cogs.triggers',
+                'cogs.owner',
+                'cogs.main',
+                'cogs.error_handler',
+                'cogs.starboard',
+                'cogs.music'
+            ]
 
-        for cog in cogs:
-            try:
-                self.load_extension(cog)
-                print(f'Loaded "{cog}" successfully!')
-            except SyntaxError:
-                print(f'Failed to load "{cog}" because of a syntaxerror.')
-            except ImportError as ex:
-                print(f'Failed to load "{cog}" because of an importerror.')
-                print(ex)
+            for cog in cogs:
+                try:
+                    self.load_extension(cog)
+                    print(f'Loaded "{cog}" successfully!')
+                except SyntaxError:
+                    print(f'Failed to load "{cog}" because of a syntaxerror.')
+                except ImportError as ex:
+                    print(f'Failed to load "{cog}" because of an importerror.')
+                    print(ex)
+        else:
+            print('Cogs are already loaded. Skipping...')
 
     async def initialize_db(self):
         print('Connecting to database...')
