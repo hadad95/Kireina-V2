@@ -134,7 +134,7 @@ class Logger(commands.Cog):
 
             if not before_muted and after_muted:
                 # user got muted
-                time_added = utils.parse_timedelta(reason)
+                time_added, reason = utils.parse_timedelta(reason)
                 if time_added:
                     unmute_at = datetime.utcnow() + time_added
                     async with mod_cog.lock:

@@ -12,8 +12,7 @@ class CaseType(Enum):
     BAN = 4
 
 
-regex_reason = re.compile(r'\|((?!.*\|).+)$')
-regex_time = re.compile(r'((?P<weeks>\d+?)\s?w[a-zA-Z]*)?\s*((?P<days>\d+?)\s?d[a-zA-Z]*)?\s*((?P<hours>\d+?)\s?h[a-zA-Z]*)?\s*((?P<minutes>\d+?)\s?m[a-zA-Z]*)?\s*((?P<seconds>\d+?)\s?s[a-zA-Z]*)?', re.IGNORECASE)
+regex_time = re.compile(r'^(\d+)([sSmMhHdDwW])\s', re.IGNORECASE)
 
 def create_modlog_embed(case_type, case_id, member, moderator, timestamp, reason, unmute_at):
     embed = discord.Embed()
@@ -102,19 +101,21 @@ def parse_timedelta(reason):
     if not reason:
         return None
 
-    time_str = regex_reason.search(reason)
-    if not time_str:
+    result = regex_time.search(reason)
+    if not result:
         return None
 
-    time_str = time_str[1].strip()
-    parts = regex_time.search(time_str)
-    if not parts:
-        return None
-
-    parts = parts.groupdict()
-    time_params = {}
-    for name, param in parts.items():
-        if param:
-            time_params[name] = int(param)
-
-    return timedelta(**time_params)
+    time = None
+    if result[2] == 's':
+        time = timedelta(seconds=int(result[1]))
+    elif result[2] == 'm':
+        time = timedelta(minutes=int(result[1]))
+    elif result[2] == 'y':
+        time = timedelta(hours=int(result[1]))
+    elif result[2] == 'd':
+        time = timedelta(days=int(result[1]))
+    elif result[2] == 'w':
+        time = timedelta(weeks=int(result[1]))
+    
+    reason = reason[len(result[0]):]
+    return time, reason

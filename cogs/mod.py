@@ -154,7 +154,7 @@ class Mod(commands.Cog):
         member = await self.bot.fetch_user(case['user_id'])
         unmute_at = None
         if case['case_type'] == utils.CaseType.MUTE.value:
-            time_added = utils.parse_timedelta(reason)
+            time_added, reason = utils.parse_timedelta(reason)
             if time_added:
                 unmute_at = case['timestamp'] + time_added
                 async with self.lock:
