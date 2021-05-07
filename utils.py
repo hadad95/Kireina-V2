@@ -99,11 +99,11 @@ async def get_db_roles(db, user_id):
 
 def parse_timedelta(reason):
     if not reason:
-        return None
+        return None, None
 
     result = regex_time.search(reason)
     if not result:
-        return None
+        return None, reason
 
     time = None
     if result[2] == 's':
