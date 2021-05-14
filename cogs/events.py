@@ -221,7 +221,7 @@ class Logger(commands.Cog):
             guild_invites = await msg.guild.invites()
             for match in matches:
                 if not any(inv.code in match for inv in guild_invites):
-                    if discord.utils.get(msg.author.roles, id=config.ROLE_STAFF) is None and msg.channel.id != config.CHAN_PROMOTIONS:
+                    if discord.utils.find(lambda r: r.id in config.ROLE_STAFF, msg.author.roles) is None and msg.channel.id != config.CHAN_PROMOTIONS:
                         await msg.author.add_roles(discord.Object(id=config.ROLE_MUTED), reason='Auto-mute for sending ads')
                         await self.submit_filtered_message(msg)
         
