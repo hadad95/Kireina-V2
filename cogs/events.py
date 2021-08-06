@@ -153,10 +153,16 @@ class Logger(commands.Cog):
             case = 1 if len(before.roles) < len(after.roles) else 2 # 1 = role added, 2 = role removed
             list_a = after.roles if case == 1 else before.roles # list_a holds the bigger number of roles
             list_b = after.roles if case == 2 else before.roles
+
             role = None
             for item in list_a:
                 if item not in list_b:
                     role = item
+            
+            # Check if role is deleted from the guild then return. Prevents spamming in logs
+            if case == 2 and not after.guild.get_role(role.id):
+                print('Role was deleted from guild')
+                return
             
             chan = self.bot.get_channel(config.CHAN_EDITS_DELETES)
             embed = discord.Embed()
