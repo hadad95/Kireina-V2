@@ -159,11 +159,6 @@ class Logger(commands.Cog):
                 if item not in list_b:
                     role = item
             
-            # Check if role is deleted from the guild then return. Prevents spamming in logs
-            if case == 2 and not after.guild.get_role(role.id):
-                print('Role was deleted from guild')
-                return
-            
             chan = self.bot.get_channel(config.CHAN_EDITS_DELETES)
             embed = discord.Embed()
             embed.set_author(name=str(before), icon_url=before.avatar_url)
